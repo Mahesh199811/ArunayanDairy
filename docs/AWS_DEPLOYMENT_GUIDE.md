@@ -126,7 +126,7 @@ aws configure
    
    DB Instance Identifier: arunayan-dairy-db
    Master Username: postgres
-   Master Password: [Create strong password - SAVE THIS!]
+   Master Password: Bethone1998
    
    DB Instance Class: db.t3.micro (Free tier)
    Storage: 20 GB (Free tier)
