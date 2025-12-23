@@ -5,11 +5,41 @@ Complete step-by-step guide to deploy your .NET API and database to AWS.
 ## 📋 Table of Contents
 1. [Prerequisites](#prerequisites)
 2. [AWS Account Setup](#aws-account-setup)
-3. [Database Setup (RDS)](#database-setup-rds)
-4. [API Deployment Options](#api-deployment-options)
+3. [Database Setup (RDS)](#database-setup-rds) ✅ COMPLETED
+4. [API Deployment Options](#api-deployment-options) 🔄 IN PROGRESS
 5. [Security Configuration](#security-configuration)
-6. [Update MAUI App](#update-maui-app)
+6. [Update MAUI App](#update-maui-app) ⏳ PENDING
 7. [Cost Estimation](#cost-estimation)
+8. [Deployment Status](#deployment-status)
+
+---
+
+## Deployment Status
+
+### ✅ Completed Steps:
+1. **AWS RDS PostgreSQL Database** - Fully configured and operational
+   - Endpoint: `arunayan-dairy-db.cvi8o6aokr0e.eu-west-1.rds.amazonaws.com`
+   - Region: eu-west-1 (Ireland)
+   - Database: arunayandb
+   - Security: Configured for IP 122.170.195.117
+   - Migrations: Applied successfully
+   - Test Data: User created and verified
+
+2. **.NET Project Configuration** - Ready for deployment
+   - PostgreSQL package installed
+   - Smart database provider detection
+   - Connection string updated
+   - Migrations created and applied
+
+### 🔄 Current Step:
+**Phase 2: AWS Elastic Beanstalk Deployment**
+- Next: Publish API and create deployment package
+- See [Option A: AWS Elastic Beanstalk](#option-a-aws-elastic-beanstalk-easiest---recommended-for-beginners) section below
+
+### ⏳ Remaining Steps:
+1. Deploy API to Elastic Beanstalk
+2. Update MAUI app with AWS URL
+3. End-to-end testing
 
 ---
 
@@ -110,69 +140,100 @@ aws configure
 
 ---
 
-### Option 2: Amazon RDS PostgreSQL (Recommended - Cheaper & Free tier)
+### Option 2: Amazon RDS PostgreSQL (Recommended - Cheaper & Free tier) ✅ COMPLETED
 
-#### Step 1: Create RDS PostgreSQL Instance
+#### Step 1: Create RDS PostgreSQL Instance ✅
 
-1. **Navigate to RDS:**
-   - In AWS Console, search for "RDS"
-   - Click "Create database"
+**Our Configuration:**
+```
+Region: eu-west-1 (Ireland)
+Engine: PostgreSQL 15.x
+Template: Free tier
 
-2. **Configuration:**
-   ```
-   Engine: PostgreSQL
-   Version: PostgreSQL 15.x (latest)
-   Template: Free tier
-   
-   DB Instance Identifier: arunayan-dairy-db
-   Master Username: postgres
-   Master Password: Bethone1998
-   
-   DB Instance Class: db.t3.micro (Free tier)
-   Storage: 20 GB (Free tier)
-   
-   VPC: Default VPC
-   Public Access: Yes (for development)
-   VPC Security Group: Create new → arunayan-sg
-   
-   Initial Database Name: arunayandb
-   ```
+DB Instance Identifier: arunayan-dairy-db
+Master Username: postgres
+Master Password: Betheone1998
 
-3. **Click "Create database"** (Takes 5-10 minutes)
+DB Instance Class: db.t3.micro (Free tier)
+Storage: 20 GB (Free tier)
 
-4. **Get Connection Details:**
-   - Copy the "Endpoint"
-   - Port: `5432`
+VPC: Default VPC
+Public Access: Yes ✅
+VPC Security Group: arunayan-sg
 
-5. **Update Security Group:**
-   - Go to EC2 → Security Groups
-   - Find `arunayan-sg`
-   - Edit Inbound Rules
-   - Add Rule:
-     - Type: PostgreSQL
-     - Port: 5432
-     - Source: `0.0.0.0/0` (for development)
+Initial Database Name: arunayandb
+```
 
-#### Update Your .NET Project:
+**Endpoint:** `arunayan-dairy-db.cvi8o6aokr0e.eu-west-1.rds.amazonaws.com`
+**Port:** `5432`
 
-**Install PostgreSQL package:**
+#### Step 2: Security Group Configuration ✅
+
+**Security Group:** `arunayan-sg`
+- **Inbound Rule Added:**
+  - Type: PostgreSQL
+  - Port: 5432
+  - Source: 122.170.195.117/32 (Your IP)
+  - Status: ✅ Configured
+
+**Important Notes:**
+- Public Access: Enabled ✅
+- Password Authentication: Working ✅
+- SSL Mode: Required
+
+#### Update Your .NET Project: ✅ COMPLETED
+
+**Install PostgreSQL package:** ✅
 ```bash
 cd ArunayanDairy.API
 dotnet add package Npgsql.EntityFrameworkCore.PostgreSQL
+# Version installed: 9.0.0
 ```
 
-**Update `Program.cs`:**
+**Update `Program.cs`:** ✅
 ```csharp
-// Replace UseSqlite with UseNpgsql
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+// Smart detection - uses PostgreSQL if Host= found in connection string
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+if (connectionString?.Contains("Host=") == true)
+{
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseNpgsql(connectionString));
+}
+else
+{
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseSqlite(connectionString ?? "Data Source=arunayan.db"));
+}
 ```
 
-**Update `appsettings.json`:**
+**Update `appsettings.json`:** ✅
 ```json
 "ConnectionStrings": {
-  "DefaultConnection": "Host=arunayan-dairy-db.xxxxxx.us-east-1.rds.amazonaws.com;Port=5432;Database=arunayandb;Username=postgres;Password=YourPassword;SSL Mode=Require;"
+  "DefaultConnection": "Host=arunayan-dairy-db.cvi8o6aokr0e.eu-west-1.rds.amazonaws.com;Port=5432;Database=arunayandb;Username=postgres;Password=Betheone1998;SSL Mode=Require;"
 }
+```
+
+**Run Migrations:** ✅
+```bash
+# Clean slate - removed old SQLite migrations
+dotnet ef migrations remove
+
+# Create fresh PostgreSQL migration
+dotnet ef migrations add InitialPostgreSQL
+
+# Apply to AWS RDS
+dotnet ef database update
+# Result: Users table created successfully with UUID, timestamps, unique email index
+```
+
+**Test Data Creation:** ✅
+```bash
+curl -X POST http://localhost:5001/api/auth/signup \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Test User","email":"test@example.com","password":"Test123!"}'
+
+# Response: 200 OK with JWT tokens
+# Verified: User created in AWS RDS PostgreSQL database
 ```
 
 **Cost:** FREE for 12 months (750 hours/month), then ~$15/month
@@ -204,6 +265,7 @@ cd ..
 
 1. **Navigate to Elastic Beanstalk:**
    - In AWS Console, search for "Elastic Beanstalk"
+   - Or use direct link: https://console.aws.amazon.com/elasticbeanstalk/home?region=eu-west-1
    - Click "Create application"
 
 2. **Configuration:**
@@ -221,8 +283,8 @@ cd ..
    - Click "Configure more options"
    - Software → Edit:
      - Environment properties:
-       - `ConnectionStrings__DefaultConnection`: [Your RDS connection string]
-       - `Jwt__Secret`: [Your JWT secret]
+       - `ConnectionStrings__DefaultConnection`: Host=arunayan-dairy-db.cvi8o6aokr0e.eu-west-1.rds.amazonaws.com;Port=5432;Database=arunayandb;Username=postgres;Password=Betheone1998;SSL Mode=Require;
+       - `Jwt__Secret`: [Your JWT secret from appsettings.json]
        - `Jwt__Issuer`: ArunayanDairyAPI
        - `Jwt__Audience`: ArunayanDairyMAUI
        - `ASPNETCORE_ENVIRONMENT`: Production
@@ -231,7 +293,8 @@ cd ..
 
 5. **Get Your API URL:**
    - After deployment completes
-   - You'll see: `http://arunayanairyapi-env.xxxxxx.us-east-1.elasticbeanstalk.com`
+   - You'll see: `http://arunayanairyapi-env.xxxxxx.eu-west-1.elasticbeanstalk.com`
+   - **Important:** Save this URL for updating the MAUI app
 
 **Cost:** FREE for 12 months (750 hours/month), then ~$20-30/month
 
@@ -523,23 +586,29 @@ iOS simulator can't access `localhost` or `127.0.0.1`. Use:
 
 ## Step-by-Step Deployment Checklist
 
-### Phase 1: Database Setup (30 minutes)
-- [ ] Create AWS account
-- [ ] Create RDS PostgreSQL instance
-- [ ] Update security group to allow connections
-- [ ] Test connection from your Mac
-- [ ] Update local appsettings.json with RDS connection
-- [ ] Run migrations: `dotnet ef database update`
+### Phase 1: Database Setup (30 minutes) ✅ COMPLETED
+- [✅] Create AWS account
+- [✅] Create RDS PostgreSQL instance (arunayan-dairy-db)
+- [✅] Update security group to allow connections (port 5432 from 122.170.195.117)
+- [✅] Enable public access on RDS instance
+- [✅] Test connection from your Mac
+- [✅] Update local appsettings.json with RDS connection
+- [✅] Install Npgsql.EntityFrameworkCore.PostgreSQL package
+- [✅] Update Program.cs with smart database provider detection
+- [✅] Run migrations: `dotnet ef database update`
+- [✅] Verify with test user creation (test@example.com)
 
-### Phase 2: API Deployment (45 minutes)
+### Phase 2: API Deployment (45 minutes) 🔄 IN PROGRESS
 - [ ] Choose deployment method (Elastic Beanstalk recommended)
-- [ ] Publish application
-- [ ] Deploy to AWS
-- [ ] Configure environment variables
+- [ ] Publish application: `dotnet publish -c Release -o ./publish`
+- [ ] Create ZIP package for deployment
+- [ ] Deploy to AWS Elastic Beanstalk
+- [ ] Configure environment variables (JWT settings, connection string)
 - [ ] Test API endpoints (use Swagger)
 
-### Phase 3: MAUI App Update (15 minutes)
-- [ ] Update API base URL in AuthService
+### Phase 3: MAUI App Update (15 minutes) ⏳ PENDING
+- [ ] Update API base URL in AuthService.cs
+- [ ] Replace localhost:5001 with Elastic Beanstalk URL
 - [ ] Test login/signup from MAUI app
 - [ ] Verify data is being stored in RDS
 
@@ -583,25 +652,33 @@ curl -X POST http://your-api-url/api/auth/signup \
 
 ### Common Issues:
 
-**1. Can't connect to RDS:**
-- Check security group allows your IP
-- Verify endpoint and port
-- Check VPC settings (must be publicly accessible for development)
+**1. Can't connect to RDS:** ✅ RESOLVED
+- ✅ Check security group allows your IP (configured for 122.170.195.117)
+- ✅ Verify endpoint and port (arunayan-dairy-db.cvi8o6aokr0e.eu-west-1.rds.amazonaws.com:5432)
+- ✅ Check VPC settings (publicly accessible enabled)
+- ✅ Password authentication working (Betheone1998)
+- **Solution Applied:** Modified security group inbound rules + enabled public access + reset password
 
-**2. API not starting on EC2:**
+**2. Migration Data Type Conflicts:** ✅ RESOLVED
+- **Issue:** SQLite TEXT type incompatible with PostgreSQL timestamp
+- **Solution:** Removed old SQLite migrations, created fresh PostgreSQL migration (InitialPostgreSQL)
+- **Result:** Users table created successfully with proper UUID and timestamp types
+
+**3. API not starting on EC2:**
 - Check logs: `sudo journalctl -u arunayan-api -f`
 - Verify .NET is installed: `dotnet --version`
 - Check firewall: `sudo ufw status`
 
-**3. MAUI app can't connect:**
+**4. MAUI app can't connect:**
 - Verify API URL is correct
 - Check API is running: `curl http://your-api-url/swagger`
 - For iOS, make sure using IP address, not localhost
 
-**4. Database migration errors:**
+**5. Database migration errors:**
 - Ensure connection string is correct
 - Check RDS instance is running
 - Verify security group allows connections
+- Allow time for password changes to propagate (30+ seconds)
 
 ---
 

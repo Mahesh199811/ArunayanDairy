@@ -89,16 +89,28 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Configure SQLite Database
+// Configure Database (SQLite for local dev, PostgreSQL for production)
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("DefaultConnection not configured in appsettings.json");
 
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(connectionString));
+// Use PostgreSQL if connection string contains "Host" (PostgreSQL), otherwise use SQLite
+if (connectionString.Contains("Host=", StringComparison.OrdinalIgnoreCase))
+{
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseNpgsql(connectionString));
+}
+else
+{
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseSqlite(connectionString));
+}
 
 // Register application services
 builder.Services.AddSingleton<JwtTokenGenerator>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ArunayanDairy.API.Repositories.IUnitOfWork, ArunayanDairy.API.Repositories.UnitOfWork>();
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
 
 var app = builder.Build();
 
