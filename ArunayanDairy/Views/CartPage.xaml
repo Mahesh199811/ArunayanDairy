@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:ArunayanDairy.ViewModels"
+             xmlns:models="clr-namespace:ArunayanDairy.Models"
+             x:Class="ArunayanDairy.Views.CartPage"
+             x:DataType="viewmodels:CartViewModel"
+             Title="{Binding Title}">
+
+    <Grid RowDefinitions="Auto,*,Auto">
+        
+        <!-- Error Message -->
+        <Frame Grid.Row="0" 
+               BackgroundColor="#FFE6E6" 
+               Padding="10" 
+               Margin="10,5"
+               IsVisible="{Binding ErrorMessage, Converter={StaticResource StringToBoolConverter}}">
+            <Label Text="{Binding ErrorMessage}" 
+                   TextColor="Red" 
+                   FontSize="14" />
+        </Frame>
+
+        <!-- Cart Items or Empty State -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="10" Spacing="10">
+                
+                <!-- Empty Cart Message -->
+                <VerticalStackLayout IsVisible="{Binding HasItems, Converter={StaticResource InvertedBoolConverter}}"
+                                   Padding="20"
+                                   VerticalOptions="Center"
+                                   Spacing="20">
+                    <Label Text="🛒" 
+                           FontSize="80"
+                           HorizontalOptions="Center" />
+                    <Label Text="Your cart is empty"
+                           FontSize="20"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center" />
+                    <Label Text="Add products to get started"
+                           FontSize="16"
+                           TextColor="Gray"
+                           HorizontalOptions="Center" />
+                </VerticalStackLayout>
+
+                <!-- Cart Items List -->
+                <VerticalStackLayout IsVisible="{Binding HasItems}" Spacing="10">
+                    
+                    <CollectionView ItemsSource="{Binding CartItems}"
+                                   SelectionMode="None">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:CartItem">
+                                <Frame Padding="10" 
+                                       Margin="0,5" 
+                                       CornerRadius="8"
+                                       HasShadow="True">
+                                    <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="80,*,Auto" RowSpacing="10">
+                                        
+                                        <!-- Product Image -->
+                                        <Frame Grid.Row="0" Grid.Column="0" 
+                                               Grid.RowSpan="2"
+                                               Padding="0" 
+                                               CornerRadius="8"
+                                               IsClippedToBounds="True"
+                                               HeightRequest="80"
+                                               WidthRequest="80">
+                                            <Image Source="{Binding Product.ImageUrl, TargetNullValue='dotnet_bot.png'}"
+                                                   Aspect="AspectFill" />
+                                        </Frame>
+
+                                        <!-- Product Info -->
+                                        <VerticalStackLayout Grid.Row="0" Grid.Column="1" Spacing="5">
+                                            <Label Text="{Binding Product.Name}" 
+                                                   FontSize="16" 
+                                                   FontAttributes="Bold" />
+                                            <Label FontSize="14" TextColor="#4CAF50">
+                                                <Label.Text>
+                                                    <MultiBinding StringFormat="₹{0:F2}/{1}">
+                                                        <Binding Path="EffectivePrice" />
+                                                        <Binding Path="Product.Unit" />
+                                                    </MultiBinding>
+                                                </Label.Text>
+                                            </Label>
+                                        </VerticalStackLayout>
+
+                                        <!-- Remove Button -->
+                                        <Button Grid.Row="0" Grid.Column="2"
+                                                Text="✕"
+                                                FontSize="18"
+                                                WidthRequest="40"
+                                                HeightRequest="40"
+                                                CornerRadius="20"
+                                                BackgroundColor="#FF5722"
+                                                TextColor="White"
+                                                VerticalOptions="Start"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:CartViewModel}}, Path=RemoveItemCommand}"
+                                                CommandParameter="{Binding .}" />
+
+                                        <!-- Quantity Controls -->
+                                        <Grid Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" 
+                                              ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="10">
+                                            
+                                            <Button Grid.Column="0"
+                                                    Text="-"
+                                                    FontSize="18"
+                                                    WidthRequest="40"
+                                                    HeightRequest="40"
+                                                    CornerRadius="20"
+                                                    BackgroundColor="#FF9800"
+                                                    TextColor="White"
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:CartViewModel}}, Path=DecreaseQuantityCommand}"
+                                                    CommandParameter="{Binding .}" />
+
+                                            <Label Grid.Column="1" 
+                                                   FontSize="16"
+                                                   VerticalOptions="Center"
+                                                   HorizontalOptions="Start">
+                                                <Label.Text>
+                                                    <MultiBinding StringFormat="{}{0} {1}">
+                                                        <Binding Path="Quantity" />
+                                                        <Binding Path="Product.Unit" />
+                                                    </MultiBinding>
+                                                </Label.Text>
+                                            </Label>
+
+                                            <Button Grid.Column="2"
+                                                    Text="+"
+                                                    FontSize="18"
+                                                    WidthRequest="40"
+                                                    HeightRequest="40"
+                                                    CornerRadius="20"
+                                                    BackgroundColor="#4CAF50"
+                                                    TextColor="White"
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:CartViewModel}}, Path=IncreaseQuantityCommand}"
+                                                    CommandParameter="{Binding .}" />
+
+                                            <Label Grid.Column="3"
+                                                   FontSize="18"
+                                                   FontAttributes="Bold"
+                                                   TextColor="#2196F3"
+                                                   VerticalOptions="Center">
+                                                <Label.Text>
+                                                    <MultiBinding StringFormat="₹{0:F2}">
+                                                        <Binding Path="Subtotal" />
+                                                    </MultiBinding>
+                                                </Label.Text>
+                                            </Label>
+                                        </Grid>
+
+                                    </Grid>
+                                </Frame>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+
+                    <!-- Delivery Date and Notes -->
+                    <Frame Padding="15" 
+                           BackgroundColor="White"
+                           HasShadow="True"
+                           CornerRadius="8"
+                           Margin="0,10,0,0">
+                        <VerticalStackLayout Spacing="15">
+                            
+                            <Label Text="Delivery Details" 
+                                   FontSize="18" 
+                                   FontAttributes="Bold" />
+
+                            <VerticalStackLayout Spacing="5">
+                                <Label Text="Delivery Date" 
+                                       FontSize="14" 
+                                       TextColor="Gray" />
+                                <DatePicker Date="{Binding DeliveryDate}"
+                                          MinimumDate="{Binding MinimumDate}"
+                                          MaximumDate="{Binding MaximumDate}"
+                                          Format="MMMM dd, yyyy" />
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Spacing="5">
+                                <Label Text="Notes (Optional)" 
+                                       FontSize="14" 
+                                       TextColor="Gray" />
+                                <Editor Text="{Binding Notes}"
+                                       Placeholder="Add delivery instructions..."
+                                       HeightRequest="80" />
+                            </VerticalStackLayout>
+
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <!-- Summary -->
+                    <Frame Padding="15" 
+                           BackgroundColor="#E8F5E9"
+                           CornerRadius="8">
+                        <Grid RowDefinitions="Auto,Auto" RowSpacing="10">
+                            
+                            <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
+                                <Label Grid.Column="0"
+                                       Text="Total Items"
+                                       FontSize="16" />
+                                <Label Grid.Column="1"
+                                       FontSize="16"
+                                       FontAttributes="Bold">
+                                    <Label.Text>
+                                        <MultiBinding StringFormat="{}{0}">
+                                            <Binding Path="TotalItems" />
+                                        </MultiBinding>
+                                    </Label.Text>
+                                </Label>
+                            </Grid>
+
+                            <Grid Grid.Row="1" ColumnDefinitions="*,Auto">
+                                <Label Grid.Column="0"
+                                       Text="Total Amount"
+                                       FontSize="18"
+                                       FontAttributes="Bold" />
+                                <Label Grid.Column="1"
+                                       FontSize="20"
+                                       FontAttributes="Bold"
+                                       TextColor="#4CAF50">
+                                    <Label.Text>
+                                        <MultiBinding StringFormat="₹{0:F2}">
+                                            <Binding Path="TotalAmount" />
+                                        </MultiBinding>
+                                    </Label.Text>
+                                </Label>
+                            </Grid>
+
+                        </Grid>
+                    </Frame>
+
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Action Buttons -->
+        <Frame Grid.Row="2" 
+               Padding="15" 
+               BackgroundColor="White"
+               CornerRadius="0"
+               HasShadow="True"
+               IsVisible="{Binding HasItems}">
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                
+                <Button Grid.Column="0"
+                        Text="Clear Cart"
+                        BackgroundColor="#FF5722"
+                        TextColor="White"
+                        HeightRequest="50"
+                        CornerRadius="10"
+                        Command="{Binding ClearCartCommand}" />
+
+                <Button Grid.Column="1"
+                        Text="Place Order"
+                        BackgroundColor="#4CAF50"
+                        TextColor="White"
+                        HeightRequest="50"
+                        CornerRadius="10"
+                        Command="{Binding PlaceOrderCommand}"
+                        IsEnabled="{Binding HasItems}">
+                    <Button.IsVisible>
+                        <Binding Path="IsBusy" Converter="{StaticResource InvertedBoolConverter}" />
+                    </Button.IsVisible>
+                </Button>
+
+                <ActivityIndicator Grid.Column="1"
+                                 IsRunning="{Binding IsBusy}"
+                                 IsVisible="{Binding IsBusy}"
+                                 Color="#4CAF50" />
+
+            </Grid>
+        </Frame>
+
+    </Grid>
+
+</ContentPage>

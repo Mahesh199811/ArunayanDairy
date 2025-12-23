@@ -23,14 +23,30 @@ public static class MauiProgram
 		builder.Services.AddSingleton<SecureStorageHelper>();
 		builder.Services.AddSingleton<HttpClient>();
 		builder.Services.AddSingleton<IAuthService, AuthService>();
+		builder.Services.AddSingleton<IProductService, ProductService>();
+		builder.Services.AddSingleton<IOrderService, OrderService>();
 
-		// Register ViewModels
-		builder.Services.AddTransient<LoginViewModel>();
-		builder.Services.AddTransient<SignupViewModel>();
+        // Register ViewModels
+        builder.Services.AddTransient<LoginViewModel>();
+        builder.Services.AddTransient<SignupViewModel>();
+        builder.Services.AddSingleton<ProductListViewModel>();
+        builder.Services.AddTransient<ProductDetailViewModel>();
+        builder.Services.AddSingleton<CartViewModel>();
+        builder.Services.AddTransient<OrderHistoryViewModel>();
+        builder.Services.AddTransient<OrderDetailViewModel>();
+        builder.Services.AddTransient<AdminDashboardViewModel>();
+        builder.Services.AddTransient<AdminOrderDetailViewModel>();
 
-		// Register Views
-		builder.Services.AddTransient<LoginPage>();
-		builder.Services.AddTransient<SignupPage>();
+        // Register Views
+        builder.Services.AddTransient<LoginPage>();
+        builder.Services.AddTransient<SignupPage>();
+        builder.Services.AddTransient<ProductListPage>();
+        builder.Services.AddTransient<ProductDetailPage>();
+        builder.Services.AddTransient<CartPage>();
+        builder.Services.AddTransient<OrderHistoryPage>();
+        builder.Services.AddTransient<OrderDetailPage>();
+        builder.Services.AddTransient<AdminDashboardPage>();
+        builder.Services.AddTransient<AdminOrderDetailPage>();
 
 #if DEBUG
 		builder.Logging.AddDebug();

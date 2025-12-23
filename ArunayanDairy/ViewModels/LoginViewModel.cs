@@ -107,8 +107,15 @@ public class LoginViewModel : INotifyPropertyChanged
 
             if (response != null)
             {
-                // Navigate to main page on successful login
-                await Shell.Current.GoToAsync("///MainPage");
+                // Navigate based on user role
+                if (response.User.Role.Equals("admin", StringComparison.OrdinalIgnoreCase))
+                {
+                    await Shell.Current.GoToAsync("//AdminDashboard");
+                }
+                else
+                {
+                    await Shell.Current.GoToAsync("//Products");
+                }
             }
         }
         catch (Exception ex)

@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:ArunayanDairy.ViewModels"
+             x:Class="ArunayanDairy.Views.ProductDetailPage"
+             x:DataType="viewmodels:ProductDetailViewModel"
+             Title="{Binding Title}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="0" Spacing="0">
+            
+            <!-- Loading Indicator -->
+            <ActivityIndicator IsRunning="{Binding IsBusy}" 
+                             IsVisible="{Binding IsBusy}"
+                             Color="#2196F3"
+                             Margin="20" />
+
+            <!-- Error Message -->
+            <Frame BackgroundColor="#FFE6E6" 
+                   Padding="10" 
+                   Margin="10,5"
+                   IsVisible="{Binding ErrorMessage, Converter={StaticResource StringToBoolConverter}}">
+                <Label Text="{Binding ErrorMessage}" 
+                       TextColor="Red" 
+                       FontSize="14" />
+            </Frame>
+
+            <VerticalStackLayout IsVisible="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}">
+                
+                <!-- Product Image -->
+                <Frame Padding="0" 
+                       CornerRadius="0"
+                       IsClippedToBounds="True"
+                       HeightRequest="300">
+                    <Image Source="{Binding Product.ImageUrl, TargetNullValue='dotnet_bot.png'}"
+                           Aspect="AspectFill" />
+                </Frame>
+
+                <!-- Product Details -->
+                <VerticalStackLayout Padding="20" Spacing="15">
+                    
+                    <!-- Name and Category -->
+                    <Label Text="{Binding Product.Name}" 
+                           FontSize="24" 
+                           FontAttributes="Bold" />
+                    
+                    <Label Text="{Binding Product.CategoryName}" 
+                           FontSize="16" 
+                           TextColor="Gray" />
+
+                    <!-- Price -->
+                    <Label FontSize="28" 
+                           TextColor="#4CAF50"
+                           FontAttributes="Bold">
+                        <Label.Text>
+                            <MultiBinding StringFormat="₹{0:F2}/{1}">
+                                <Binding Path="SelectedPrice" />
+                                <Binding Path="Product.Unit" />
+                            </MultiBinding>
+                        </Label.Text>
+                    </Label>
+
+                    <!-- Description -->
+                    <Label Text="{Binding Product.Description}" 
+                           FontSize="14" 
+                           TextColor="#555"
+                           IsVisible="{Binding Product.Description, Converter={StaticResource StringToBoolConverter}}" />
+
+                    <!-- SKU and Unit Info -->
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Frame Grid.Column="0" 
+                               Padding="10" 
+                               BackgroundColor="#F5F5F5"
+                               CornerRadius="8">
+                            <VerticalStackLayout>
+                                <Label Text="SKU" 
+                                       FontSize="12" 
+                                       TextColor="Gray" />
+                                <Label Text="{Binding Product.SKU}" 
+                                       FontSize="14" 
+                                       FontAttributes="Bold" />
+                            </VerticalStackLayout>
+                        </Frame>
+
+                        <Frame Grid.Column="1" 
+                               Padding="10" 
+                               BackgroundColor="#F5F5F5"
+                               CornerRadius="8">
+                            <VerticalStackLayout>
+                                <Label Text="Unit" 
+                                       FontSize="12" 
+                                       TextColor="Gray" />
+                                <Label Text="{Binding Product.Unit}" 
+                                       FontSize="14" 
+                                       FontAttributes="Bold" />
+                            </VerticalStackLayout>
+                        </Frame>
+                    </Grid>
+
+                    <!-- Order Quantity Info -->
+                    <Frame Padding="15" 
+                           BackgroundColor="#E3F2FD"
+                           CornerRadius="8">
+                        <VerticalStackLayout Spacing="5">
+                            <Label FontSize="14">
+                                <Label.Text>
+                                    <MultiBinding StringFormat="Min Order: {0} {1}">
+                                        <Binding Path="Product.MinOrderQuantity" />
+                                        <Binding Path="Product.Unit" />
+                                    </MultiBinding>
+                                </Label.Text>
+                            </Label>
+                            <Label FontSize="14"
+                                   IsVisible="{Binding Product.MaxOrderQuantity, Converter={StaticResource NullToBoolConverter}}">
+                                <Label.Text>
+                                    <MultiBinding StringFormat="Max Order: {0} {1}">
+                                        <Binding Path="Product.MaxOrderQuantity" />
+                                        <Binding Path="Product.Unit" />
+                                    </MultiBinding>
+                                </Label.Text>
+                            </Label>
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <!-- Quantity Selector -->
+                    <Frame Padding="15" 
+                           BackgroundColor="White"
+                           HasShadow="True"
+                           CornerRadius="8">
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="15">
+                            
+                            <Button Grid.Column="0"
+                                    Text="-"
+                                    FontSize="24"
+                                    WidthRequest="50"
+                                    HeightRequest="50"
+                                    CornerRadius="25"
+                                    BackgroundColor="#FF5722"
+                                    TextColor="White"
+                                    Command="{Binding DecreaseQuantityCommand}" />
+
+                            <VerticalStackLayout Grid.Column="1" 
+                                               VerticalOptions="Center"
+                                               HorizontalOptions="Center">
+                                <Label Text="Quantity" 
+                                       FontSize="14" 
+                                       TextColor="Gray"
+                                       HorizontalOptions="Center" />
+                                <Label FontSize="20" 
+                                       FontAttributes="Bold"
+                                       HorizontalOptions="Center">
+                                    <Label.Text>
+                                        <MultiBinding StringFormat="{}{0} {1}">
+                                            <Binding Path="Quantity" />
+                                            <Binding Path="Product.Unit" />
+                                        </MultiBinding>
+                                    </Label.Text>
+                                </Label>
+                            </VerticalStackLayout>
+
+                            <Button Grid.Column="2"
+                                    Text="+"
+                                    FontSize="24"
+                                    WidthRequest="50"
+                                    HeightRequest="50"
+                                    CornerRadius="25"
+                                    BackgroundColor="#4CAF50"
+                                    TextColor="White"
+                                    Command="{Binding IncreaseQuantityCommand}" />
+                        </Grid>
+                    </Frame>
+
+                    <!-- Subtotal -->
+                    <Frame Padding="15" 
+                           BackgroundColor="#4CAF50"
+                           CornerRadius="8">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Grid.Column="0"
+                                   Text="Subtotal"
+                                   FontSize="18"
+                                   TextColor="White"
+                                   VerticalOptions="Center" />
+                            <Label Grid.Column="1"
+                                   FontSize="24"
+                                   FontAttributes="Bold"
+                                   TextColor="White"
+                                   VerticalOptions="Center">
+                                <Label.Text>
+                                    <MultiBinding StringFormat="₹{0:F2}">
+                                        <Binding Path="Subtotal" />
+                                    </MultiBinding>
+                                </Label.Text>
+                            </Label>
+                        </Grid>
+                    </Frame>
+
+                    <!-- Add to Cart Button -->
+                    <Button Text="Add to Cart"
+                            FontSize="18"
+                            FontAttributes="Bold"
+                            BackgroundColor="#2196F3"
+                            TextColor="White"
+                            HeightRequest="55"
+                            CornerRadius="12"
+                            Command="{Binding AddToCartCommand}"
+                            IsEnabled="{Binding CanAddToCart}"
+                            Margin="0,10,0,20" />
+
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

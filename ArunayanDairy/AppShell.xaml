@@ -7,6 +7,7 @@
     xmlns:views="clr-namespace:ArunayanDairy.Views"
     Title="ArunayanDairy">
 
+    <!-- Authentication Pages (No TabBar) -->
     <ShellContent
         Title="Login"
         ContentTemplate="{DataTemplate views:LoginPage}"
@@ -17,9 +18,37 @@
         ContentTemplate="{DataTemplate views:SignupPage}"
         Route="SignupPage" />
 
+    <!-- Admin Dashboard (No TabBar) -->
     <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+        Title="Admin Dashboard"
+        ContentTemplate="{DataTemplate views:AdminDashboardPage}"
+        Route="AdminDashboard" />
+
+    <!-- Main App with TabBar (Customer View) -->
+    <TabBar>
+        <Tab Title="Products" Icon="shop.png">
+            <ShellContent
+                ContentTemplate="{DataTemplate views:ProductListPage}"
+                Route="Products" />
+        </Tab>
+
+        <Tab Title="Orders" Icon="list.png">
+            <ShellContent
+                ContentTemplate="{DataTemplate views:OrderHistoryPage}"
+                Route="Orders" />
+        </Tab>
+
+        <Tab Title="Cart" Icon="cart.png">
+            <ShellContent
+                ContentTemplate="{DataTemplate views:CartPage}"
+                Route="Cart" />
+        </Tab>
+
+        <Tab Title="Profile" Icon="user.png">
+            <ShellContent
+                ContentTemplate="{DataTemplate local:MainPage}"
+                Route="Profile" />
+        </Tab>
+    </TabBar>
 
 </Shell>

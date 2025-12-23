@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:ArunayanDairy.ViewModels"
+             xmlns:models="clr-namespace:ArunayanDairy.Models"
+             x:Class="ArunayanDairy.Views.OrderHistoryPage"
+             x:DataType="viewmodels:OrderHistoryViewModel"
+             Title="{Binding Title}">
+
+    <Grid RowDefinitions="Auto,Auto,Auto,*">
+        
+        <!-- Error Message -->
+        <Frame Grid.Row="0" 
+               BackgroundColor="#FFE6E6" 
+               Padding="10" 
+               Margin="10,5"
+               IsVisible="{Binding ErrorMessage, Converter={StaticResource StringToBoolConverter}}">
+            <Label Text="{Binding ErrorMessage}" 
+                   TextColor="Red" 
+                   FontSize="14" />
+        </Frame>
+
+        <!-- Search Bar -->
+        <SearchBar Grid.Row="1"
+                   Placeholder="Search by order number or product..."
+                   Text="{Binding SearchText}"
+                   Margin="10,5" />
+
+        <!-- Status Filter -->
+        <Picker Grid.Row="2"
+                Title="Filter by Status"
+                ItemsSource="{Binding StatusFilters}"
+                SelectedItem="{Binding SelectedStatusFilter}"
+                Margin="10,5" />
+
+        <!-- Orders List -->
+        <RefreshView Grid.Row="3"
+                     IsRefreshing="{Binding IsBusy}"
+                     Command="{Binding RefreshCommand}">
+            <CollectionView ItemsSource="{Binding FilteredOrders}"
+                           SelectionMode="None">
+                <CollectionView.EmptyView>
+                    <StackLayout Padding="20" VerticalOptions="Center">
+                        <Label Text="No orders found"
+                               FontSize="18"
+                               TextColor="Gray"
+                               HorizontalOptions="Center" />
+                        <Label Text="Place your first order!"
+                               FontSize="14"
+                               TextColor="Gray"
+                               HorizontalOptions="Center"
+                               Margin="0,5,0,0" />
+                    </StackLayout>
+                </CollectionView.EmptyView>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Order">
+                        <Frame Margin="10,5" 
+                               Padding="15" 
+                               CornerRadius="8"
+                               HasShadow="True">
+                            <Frame.GestureRecognizers>
+                                <TapGestureRecognizer 
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:OrderHistoryViewModel}}, Path=OrderTappedCommand}"
+                                    CommandParameter="{Binding .}" />
+                            </Frame.GestureRecognizers>
+
+                            <Grid RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="8">
+                                
+                                <!-- Order Number and Status -->
+                                <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
+                                    <Label Grid.Column="0"
+                                           Text="{Binding OrderNumber}" 
+                                           FontSize="18" 
+                                           FontAttributes="Bold" />
+                                    <Frame Grid.Column="1"
+                                           Padding="8,4"
+                                           CornerRadius="12"
+                                           HasShadow="False">
+                                        <Frame.Triggers>
+                                            <DataTrigger TargetType="Frame" Binding="{Binding Status}" Value="Pending">
+                                                <Setter Property="BackgroundColor" Value="#FFF3E0" />
+                                            </DataTrigger>
+                                            <DataTrigger TargetType="Frame" Binding="{Binding Status}" Value="Confirmed">
+                                                <Setter Property="BackgroundColor" Value="#E3F2FD" />
+                                            </DataTrigger>
+                                            <DataTrigger TargetType="Frame" Binding="{Binding Status}" Value="Processing">
+                                                <Setter Property="BackgroundColor" Value="#E8F5E9" />
+                                            </DataTrigger>
+                                            <DataTrigger TargetType="Frame" Binding="{Binding Status}" Value="Delivered">
+                                                <Setter Property="BackgroundColor" Value="#C8E6C9" />
+                                            </DataTrigger>
+                                            <DataTrigger TargetType="Frame" Binding="{Binding Status}" Value="Cancelled">
+                                                <Setter Property="BackgroundColor" Value="#FFCDD2" />
+                                            </DataTrigger>
+                                        </Frame.Triggers>
+                                        <Label Text="{Binding Status}" 
+                                               FontSize="12" 
+                                               FontAttributes="Bold" />
+                                    </Frame>
+                                </Grid>
+
+                                <!-- Dates -->
+                                <Grid Grid.Row="1" ColumnDefinitions="Auto,*" ColumnSpacing="5">
+                                    <Label Grid.Column="0"
+                                           Text="Ordered:"
+                                           FontSize="12"
+                                           TextColor="Gray" />
+                                    <Label Grid.Column="1"
+                                           Text="{Binding OrderDate, StringFormat='{0:MMM dd, yyyy}'}"
+                                           FontSize="12"
+                                           TextColor="Gray" />
+                                </Grid>
+
+                                <Grid Grid.Row="2" ColumnDefinitions="Auto,*" ColumnSpacing="5">
+                                    <Label Grid.Column="0"
+                                           Text="Delivery:"
+                                           FontSize="12"
+                                           TextColor="Gray" />
+                                    <Label Grid.Column="1"
+                                           Text="{Binding DeliveryDate, StringFormat='{0:MMM dd, yyyy}'}"
+                                           FontSize="12"
+                                           FontAttributes="Bold"
+                                           TextColor="#2196F3" />
+                                </Grid>
+
+                                <!-- Amount and Items -->
+                                <Grid Grid.Row="3" ColumnDefinitions="*,Auto">
+                                    <Label Grid.Column="0"
+                                           FontSize="14"
+                                           TextColor="Gray">
+                                        <Label.Text>
+                                            <MultiBinding StringFormat="{}{0} items">
+                                                <Binding Path="Items.Count" />
+                                            </MultiBinding>
+                                        </Label.Text>
+                                    </Label>
+                                    <Label Grid.Column="1"
+                                           FontSize="18"
+                                           FontAttributes="Bold"
+                                           TextColor="#4CAF50">
+                                        <Label.Text>
+                                            <MultiBinding StringFormat="₹{0:F2}">
+                                                <Binding Path="TotalAmount" />
+                                            </MultiBinding>
+                                        </Label.Text>
+                                    </Label>
+                                </Grid>
+
+                            </Grid>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+
+    </Grid>
+
+</ContentPage>
