@@ -67,7 +67,7 @@ public class AuthService : IAuthService
             Name = signupDto.Name,
             Email = signupDto.Email.ToLower(),
             PasswordHash = PasswordHasher.Hash(signupDto.Password),
-            Role = "user",
+            Role = string.IsNullOrWhiteSpace(signupDto.Role) ? "user" : signupDto.Role.ToLower(),
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };

@@ -104,6 +104,27 @@
                                PlaceholderColor="{StaticResource Gray400}"/>
                     </Frame>
 
+                    <!-- Role Picker -->
+                    <Label Text="Account Type"
+                           FontSize="14"
+                           TextColor="{StaticResource Gray900}"
+                           Margin="0,8,0,0"/>
+                    <Frame BorderColor="{StaticResource Gray300}"
+                           CornerRadius="8"
+                           Padding="0"
+                           HasShadow="False">
+                        <Picker SelectedItem="{Binding SelectedRole}"
+                                TextColor="{StaticResource Gray900}"
+                                Title="Select account type">
+                            <Picker.ItemsSource>
+                                <x:Array Type="{x:Type x:String}">
+                                    <x:String>Customer</x:String>
+                                    <x:String>Admin</x:String>
+                                </x:Array>
+                            </Picker.ItemsSource>
+                        </Picker>
+                    </Frame>
+
                     <!-- Password Requirements -->
                     <Label FontSize="12"
                            TextColor="{StaticResource Gray600}"

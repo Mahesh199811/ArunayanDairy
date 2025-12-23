@@ -13,11 +13,21 @@ public class AuthService : IAuthService
     private readonly HttpClient _httpClient;
     private readonly SecureStorageHelper _storageHelper;
     
-    // For Android Emulator use: http://10.0.2.2:5001
-    // For iOS Simulator use: http://localhost:5001
-    // For Physical Device use your machine's IP: http://192.168.1.XXX:5001
-    // Note: Port 5001 used because macOS AirPlay uses port 5000
-    private const string BaseUrl = "http://localhost:5001";
+    // Automatically detect platform and use correct base URL
+    // For Android Emulator: http://10.0.2.2:5001
+    // For iOS Simulator/Mac: http://localhost:5001
+    // For Physical Device: Update with your machine's IP
+    private static string BaseUrl
+    {
+        get
+        {
+#if ANDROID
+            return "http://10.0.2.2:5001";
+#else
+            return "http://localhost:5001";
+#endif
+        }
+    }
 
     public AuthService(HttpClient httpClient, SecureStorageHelper storageHelper)
     {

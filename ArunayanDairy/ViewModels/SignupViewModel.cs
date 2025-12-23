@@ -16,6 +16,7 @@ public class SignupViewModel : INotifyPropertyChanged
     private string _email = string.Empty;
     private string _password = string.Empty;
     private string _confirmPassword = string.Empty;
+    private string _selectedRole = "Customer";
     private bool _isBusy;
     private string _errorMessage = string.Empty;
 
@@ -78,6 +79,19 @@ public class SignupViewModel : INotifyPropertyChanged
                 _confirmPassword = value;
                 OnPropertyChanged();
                 ((Command)SignupCommand).ChangeCanExecute();
+            }
+        }
+    }
+
+    public string SelectedRole
+    {
+        get => _selectedRole;
+        set
+        {
+            if (_selectedRole != value)
+            {
+                _selectedRole = value;
+                OnPropertyChanged();
             }
         }
     }
@@ -158,15 +172,23 @@ public class SignupViewModel : INotifyPropertyChanged
             {
                 Name = Name.Trim(),
                 Email = Email.Trim(),
-                Password = Password
+                Password = Password,
+                Role = SelectedRole.Equals("Admin", StringComparison.OrdinalIgnoreCase) ? "admin" : "user"
             };
 
             var response = await _authService.SignupAsync(request);
 
             if (response != null)
             {
-                // Navigate to main page on successful signup
-                await Shell.Current.GoToAsync("///MainPage");
+                // Navigate based on user role (same as login)
+                if (response.User.Role.Equals("admin", StringComparison.OrdinalIgnoreCase))
+                {
+                    await Shell.Current.GoToAsync("//AdminDashboard");
+                }
+                else
+                {
+                    await Shell.Current.GoToAsync("//Products");
+                }
             }
         }
         catch (Exception ex)
