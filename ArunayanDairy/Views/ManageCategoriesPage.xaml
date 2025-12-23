@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModels="clr-namespace:ArunayanDairy.ViewModels"
+             x:Class="ArunayanDairy.Views.ManageCategoriesPage"
+             x:DataType="viewModels:ManageCategoriesViewModel"
+             Title="Manage Categories">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Add Category"
+                     IconImageSource="plus.png"
+                     Command="{Binding AddCategoryCommand}" />
+    </ContentPage.ToolbarItems>
+
+    <Grid RowDefinitions="*,Auto">
+        
+        <!-- Categories List -->
+        <RefreshView Grid.Row="0"
+                     IsRefreshing="{Binding IsBusy}"
+                     Command="{Binding LoadCategoriesCommand}"
+                     IsVisible="{Binding IsEditing, Converter={StaticResource InvertedBoolConverter}}">
+            <CollectionView ItemsSource="{Binding Categories}"
+                           Margin="16,8">
+                <CollectionView.EmptyView>
+                    <StackLayout VerticalOptions="Center"
+                                HorizontalOptions="Center"
+                                Padding="20">
+                        <Label Text="No categories found"
+                               FontSize="18"
+                               TextColor="{StaticResource Gray600}"
+                               HorizontalOptions="Center"/>
+                        <Label Text="Tap + to add a category"
+                               FontSize="14"
+                               TextColor="{StaticResource Gray400}"
+                               HorizontalOptions="Center"
+                               Margin="0,8,0,0"/>
+                    </StackLayout>
+                </CollectionView.EmptyView>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame Margin="0,0,0,12"
+                               Padding="16"
+                               BackgroundColor="White"
+                               CornerRadius="8"
+                               HasShadow="True">
+                            <Grid ColumnDefinitions="Auto,*,Auto">
+                                <!-- Display Order Badge -->
+                                <Frame Grid.Column="0"
+                                       Padding="8"
+                                       CornerRadius="20"
+                                       BackgroundColor="{StaticResource Primary}"
+                                       HasShadow="False"
+                                       WidthRequest="40"
+                                       HeightRequest="40"
+                                       VerticalOptions="Center">
+                                    <Label Text="{Binding DisplayOrder}"
+                                           FontSize="16"
+                                           FontAttributes="Bold"
+                                           TextColor="White"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center"/>
+                                </Frame>
+
+                                <!-- Category Details -->
+                                <VerticalStackLayout Grid.Column="1"
+                                                    Margin="12,0,0,0"
+                                                    VerticalOptions="Center">
+                                    <Label Text="{Binding Name}"
+                                           FontSize="18"
+                                           FontAttributes="Bold"
+                                           TextColor="{StaticResource Gray900}"/>
+                                    <Label Text="{Binding Description}"
+                                           FontSize="14"
+                                           TextColor="{StaticResource Gray600}"
+                                           MaxLines="2"
+                                           LineBreakMode="TailTruncation"
+                                           Margin="0,4,0,0"/>
+                                    <Label FontSize="12"
+                                           TextColor="{StaticResource Gray500}"
+                                           Margin="0,4,0,0">
+                                        <Label.FormattedText>
+                                            <FormattedString>
+                                                <Span Text="Status: "/>
+                                                <Span Text="{Binding IsActive, Converter={StaticResource BoolToStringConverter}, ConverterParameter='Active|Inactive'}"
+                                                      TextColor="{Binding IsActive, Converter={StaticResource BoolToColorConverter}, ConverterParameter='#10B981|#6B7280'}"/>
+                                            </FormattedString>
+                                        </Label.FormattedText>
+                                    </Label>
+                                </VerticalStackLayout>
+
+                                <!-- Action Buttons -->
+                                <VerticalStackLayout Grid.Column="2"
+                                                    Spacing="8"
+                                                    VerticalOptions="Center">
+                                    <Button Text="Edit"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:ManageCategoriesViewModel}}, Path=EditCategoryCommand}"
+                                            CommandParameter="{Binding .}"
+                                            BackgroundColor="{StaticResource Primary}"
+                                            TextColor="White"
+                                            FontSize="12"
+                                            Padding="12,4"
+                                            CornerRadius="4"/>
+                                    <Button Text="Delete"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:ManageCategoriesViewModel}}, Path=DeleteCategoryCommand}"
+                                            CommandParameter="{Binding .}"
+                                            BackgroundColor="#DC2626"
+                                            TextColor="White"
+                                            FontSize="12"
+                                            Padding="12,4"
+                                            CornerRadius="4"/>
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+
+        <!-- Edit Form -->
+        <ScrollView Grid.Row="0"
+                   IsVisible="{Binding IsEditing}"
+                   Padding="16">
+            <VerticalStackLayout Spacing="16">
+                <Label Text="Category Details"
+                       FontSize="24"
+                       FontAttributes="Bold"
+                       TextColor="{StaticResource Primary}"/>
+
+                <Label Text="Category Name *"
+                       FontSize="14"
+                       TextColor="{StaticResource Gray900}"/>
+                <Entry Text="{Binding SelectedCategory.Name}"
+                       Placeholder="Enter category name"/>
+
+                <Label Text="Description"
+                       FontSize="14"
+                       TextColor="{StaticResource Gray900}"/>
+                <Editor Text="{Binding SelectedCategory.Description}"
+                        Placeholder="Enter category description"
+                        HeightRequest="120"/>
+
+                <Label Text="Display Order"
+                       FontSize="14"
+                       TextColor="{StaticResource Gray900}"/>
+                <Entry Text="{Binding SelectedCategory.DisplayOrder}"
+                       Keyboard="Numeric"
+                       Placeholder="Enter display order (e.g., 1, 2, 3...)"/>
+
+                <HorizontalStackLayout Spacing="8"
+                                      Margin="0,8,0,0">
+                    <CheckBox IsChecked="{Binding SelectedCategory.IsActive}"/>
+                    <Label Text="Active"
+                           VerticalOptions="Center"
+                           TextColor="{StaticResource Gray900}"/>
+                </HorizontalStackLayout>
+
+                <Grid ColumnDefinitions="*,*"
+                      ColumnSpacing="12"
+                      Margin="0,16,0,0">
+                    <Button Grid.Column="0"
+                            Text="Cancel"
+                            Command="{Binding CancelEditCommand}"
+                            BackgroundColor="{StaticResource Gray300}"
+                            TextColor="{StaticResource Gray900}"/>
+                    <Button Grid.Column="1"
+                            Text="Save"
+                            Command="{Binding SaveCategoryCommand}"
+                            BackgroundColor="{StaticResource Primary}"
+                            TextColor="White"/>
+                </Grid>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Error Message -->
+        <Label Grid.Row="1"
+               Text="{Binding ErrorMessage}"
+               IsVisible="{Binding ErrorMessage, Converter={StaticResource StringToBoolConverter}}"
+               TextColor="Red"
+               FontSize="14"
+               Padding="16,8"
+               BackgroundColor="#FEE2E2"/>
+    </Grid>
+
+</ContentPage>

@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModels="clr-namespace:ArunayanDairy.ViewModels"
+             x:Class="ArunayanDairy.Views.ManageProductsPage"
+             x:DataType="viewModels:ManageProductsViewModel"
+             Title="Manage Products">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Add Product"
+                     IconImageSource="plus.png"
+                     Command="{Binding AddProductCommand}" />
+    </ContentPage.ToolbarItems>
+
+    <Grid RowDefinitions="*,Auto">
+        
+        <!-- Products List -->
+        <RefreshView Grid.Row="0"
+                     IsRefreshing="{Binding IsBusy}"
+                     Command="{Binding LoadDataCommand}"
+                     IsVisible="{Binding IsEditing, Converter={StaticResource InvertedBoolConverter}}">
+            <CollectionView ItemsSource="{Binding Products}"
+                           Margin="16,8">
+                <CollectionView.EmptyView>
+                    <StackLayout VerticalOptions="Center"
+                                HorizontalOptions="Center"
+                                Padding="20">
+                        <Label Text="No products found"
+                               FontSize="18"
+                               TextColor="{StaticResource Gray600}"
+                               HorizontalOptions="Center"/>
+                        <Label Text="Tap + to add a product"
+                               FontSize="14"
+                               TextColor="{StaticResource Gray400}"
+                               HorizontalOptions="Center"
+                               Margin="0,8,0,0"/>
+                    </StackLayout>
+                </CollectionView.EmptyView>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame Margin="0,0,0,12"
+                               Padding="12"
+                               BackgroundColor="White"
+                               CornerRadius="8"
+                               HasShadow="True">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <VerticalStackLayout Grid.Column="0">
+                                    <Label Text="{Binding Name}"
+                                           FontSize="18"
+                                           FontAttributes="Bold"
+                                           TextColor="{StaticResource Gray900}"/>
+                                    <Label Text="{Binding Category.Name}"
+                                           FontSize="14"
+                                           TextColor="{StaticResource Primary}"
+                                           Margin="0,4,0,0"/>
+                                    <Label FontSize="14"
+                                           TextColor="{StaticResource Gray600}"
+                                           Margin="0,4,0,0">
+                                        <Label.FormattedText>
+                                            <FormattedString>
+                                                <Span Text="SKU: "/>
+                                                <Span Text="{Binding SKU}"/>
+                                                <Span Text=" | "/>
+                                                <Span Text="₹"/>
+                                                <Span Text="{Binding BasePrice}"/>
+                                                <Span Text="/"/>
+                                                <Span Text="{Binding Unit}"/>
+                                            </FormattedString>
+                                        </Label.FormattedText>
+                                    </Label>
+                                    <Label Text="{Binding Description}"
+                                           FontSize="12"
+                                           TextColor="{StaticResource Gray500}"
+                                           MaxLines="2"
+                                           LineBreakMode="TailTruncation"
+                                           Margin="0,4,0,0"/>
+                                </VerticalStackLayout>
+
+                                <VerticalStackLayout Grid.Column="1"
+                                                    Spacing="8"
+                                                    VerticalOptions="Center">
+                                    <Button Text="Edit"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:ManageProductsViewModel}}, Path=EditProductCommand}"
+                                            CommandParameter="{Binding .}"
+                                            BackgroundColor="{StaticResource Primary}"
+                                            TextColor="White"
+                                            FontSize="12"
+                                            Padding="12,4"
+                                            CornerRadius="4"/>
+                                    <Button Text="Delete"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:ManageProductsViewModel}}, Path=DeleteProductCommand}"
+                                            CommandParameter="{Binding .}"
+                                            BackgroundColor="#DC2626"
+                                            TextColor="White"
+                                            FontSize="12"
+                                            Padding="12,4"
+                                            CornerRadius="4"/>
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+
+        <!-- Edit Form -->
+        <ScrollView Grid.Row="0"
+                   IsVisible="{Binding IsEditing}"
+                   Padding="16">
+            <VerticalStackLayout Spacing="16">
+                <Label Text="Product Details"
+                       FontSize="24"
+                       FontAttributes="Bold"
+                       TextColor="{StaticResource Primary}"/>
+
+                <Label Text="Product Name *"
+                       FontSize="14"
+                       TextColor="{StaticResource Gray900}"/>
+                <Entry Text="{Binding SelectedProduct.Name}"
+                       Placeholder="Enter product name"/>
+
+                <Label Text="SKU *"
+                       FontSize="14"
+                       TextColor="{StaticResource Gray900}"/>
+                <Entry Text="{Binding SelectedProduct.SKU}"
+                       Placeholder="Enter SKU"/>
+
+                <Label Text="Description"
+                       FontSize="14"
+                       TextColor="{StaticResource Gray900}"/>
+                <Editor Text="{Binding SelectedProduct.Description}"
+                        Placeholder="Enter product description"
+                        HeightRequest="100"/>
+
+                <Label Text="Category *"
+                       FontSize="14"
+                       TextColor="{StaticResource Gray900}"/>
+                <Picker ItemsSource="{Binding Categories}"
+                        ItemDisplayBinding="{Binding Name}"
+                        SelectedItem="{Binding SelectedProduct.Category}"
+                        Title="Select category"/>
+
+                <Label Text="Base Price (₹) *"
+                       FontSize="14"
+                       TextColor="{StaticResource Gray900}"/>
+                <Entry Text="{Binding SelectedProduct.BasePrice}"
+                       Keyboard="Numeric"
+                       Placeholder="Enter base price"/>
+
+                <Label Text="Unit"
+                       FontSize="14"
+                       TextColor="{StaticResource Gray900}"/>
+                <Picker SelectedItem="{Binding SelectedProduct.Unit}"
+                        Title="Select unit">
+                    <Picker.ItemsSource>
+                        <x:Array Type="{x:Type x:String}">
+                            <x:String>Liter</x:String>
+                            <x:String>Kg</x:String>
+                            <x:String>Piece</x:String>
+                            <x:String>Pack</x:String>
+                        </x:Array>
+                    </Picker.ItemsSource>
+                </Picker>
+
+                <Grid ColumnDefinitions="*,*"
+                      ColumnSpacing="16">
+                    <VerticalStackLayout Grid.Column="0">
+                        <Label Text="Min Order Qty"
+                               FontSize="14"
+                               TextColor="{StaticResource Gray900}"/>
+                        <Entry Text="{Binding SelectedProduct.MinOrderQuantity}"
+                               Keyboard="Numeric"
+                               Placeholder="Min"/>
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Grid.Column="1">
+                        <Label Text="Max Order Qty"
+                               FontSize="14"
+                               TextColor="{StaticResource Gray900}"/>
+                        <Entry Text="{Binding SelectedProduct.MaxOrderQuantity}"
+                               Keyboard="Numeric"
+                               Placeholder="Max"/>
+                    </VerticalStackLayout>
+                </Grid>
+
+                <Label Text="Image URL"
+                       FontSize="14"
+                       TextColor="{StaticResource Gray900}"/>
+                <Entry Text="{Binding SelectedProduct.ImageUrl}"
+                       Placeholder="Enter image URL (optional)"/>
+
+                <HorizontalStackLayout Spacing="8">
+                    <CheckBox IsChecked="{Binding SelectedProduct.IsActive}"/>
+                    <Label Text="Active"
+                           VerticalOptions="Center"
+                           TextColor="{StaticResource Gray900}"/>
+                </HorizontalStackLayout>
+
+                <Grid ColumnDefinitions="*,*"
+                      ColumnSpacing="12"
+                      Margin="0,16,0,0">
+                    <Button Grid.Column="0"
+                            Text="Cancel"
+                            Command="{Binding CancelEditCommand}"
+                            BackgroundColor="{StaticResource Gray300}"
+                            TextColor="{StaticResource Gray900}"/>
+                    <Button Grid.Column="1"
+                            Text="Save"
+                            Command="{Binding SaveProductCommand}"
+                            BackgroundColor="{StaticResource Primary}"
+                            TextColor="White"/>
+                </Grid>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Error Message -->
+        <Label Grid.Row="1"
+               Text="{Binding ErrorMessage}"
+               IsVisible="{Binding ErrorMessage, Converter={StaticResource StringToBoolConverter}}"
+               TextColor="Red"
+               FontSize="14"
+               Padding="16,8"
+               BackgroundColor="#FEE2E2"/>
+    </Grid>
+
+</ContentPage>
