@@ -49,11 +49,11 @@ public class ProductsController : ControllerBase
     /// </summary>
     [HttpGet("available/{date}")]
     [ProducesResponseType(typeof(IEnumerable<ProductDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAvailableProducts(DateTime date, [FromQuery] Guid? categoryId = null)
+    public async Task<IActionResult> GetAvailableProducts(DateTime date, [FromQuery] Guid? categoryId = null, [FromQuery] Guid? vendorId = null)
     {
         try
         {
-            var products = await _productService.GetAvailableProductsAsync(date, categoryId);
+            var products = await _productService.GetAvailableProductsAsync(date, categoryId, vendorId);
             return Ok(products);
         }
         catch (Exception ex)

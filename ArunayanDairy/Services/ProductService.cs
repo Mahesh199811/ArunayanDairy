@@ -8,9 +8,10 @@ namespace ArunayanDairy.Services;
 
 public interface IProductService
 {
+    Task<List<Vendor>> GetVendorsAsync();
     Task<List<Category>> GetCategoriesAsync();
-    Task<List<Product>> GetProductsAsync(Guid? categoryId = null);
-    Task<List<Product>> GetAvailableProductsAsync(DateTime date, Guid? categoryId = null);
+    Task<List<Product>> GetProductsAsync(Guid? categoryId = null, Guid? vendorId = null);
+    Task<List<Product>> GetAvailableProductsAsync(DateTime date, Guid? categoryId = null, Guid? vendorId = null);
     Task<Product?> GetProductByIdAsync(Guid id);
 }
 
@@ -38,6 +39,22 @@ public class ProductService : IProductService
         }
     }
 
+    public async Task<List<Vendor>> GetVendorsAsync()
+    {
+        try
+        {
+            await SetAuthHeaderAsync();
+            var response = await _httpClient.GetAsync($"{_baseUrl}/vendors");
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<List<Vendor>>() ?? new List<Vendor>();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error getting vendors: {ex.Message}");
+            return new List<Vendor>();
+        }
+    }
+
     public async Task<List<Category>> GetCategoriesAsync()
     {
         try
@@ -54,14 +71,17 @@ public class ProductService : IProductService
         }
     }
 
-    public async Task<List<Product>> GetProductsAsync(Guid? categoryId = null)
+    public async Task<List<Product>> GetProductsAsync(Guid? categoryId = null, Guid? vendorId = null)
     {
         try
         {
             await SetAuthHeaderAsync();
-            var url = $"{_baseUrl}/products";
+            var url = $"{_baseUrl}/products?";
             if (categoryId.HasValue)
-                url += $"?categoryId={categoryId}";
+                url += $"categoryId={categoryId}&";
+            if (vendorId.HasValue)
+                url += $"vendorId={vendorId}&";
+            url = url.TrimEnd('&', '?');
 
             var response = await _httpClient.GetAsync(url);
             response.EnsureSuccessStatusCode();
@@ -74,15 +94,18 @@ public class ProductService : IProductService
         }
     }
 
-    public async Task<List<Product>> GetAvailableProductsAsync(DateTime date, Guid? categoryId = null)
+    public async Task<List<Product>> GetAvailableProductsAsync(DateTime date, Guid? categoryId = null, Guid? vendorId = null)
     {
         try
         {
             await SetAuthHeaderAsync();
             var dateStr = date.ToString("yyyy-MM-dd");
-            var url = $"{_baseUrl}/products/available/{dateStr}";
+            var url = $"{_baseUrl}/products/available/{dateStr}?";
             if (categoryId.HasValue)
-                url += $"?categoryId={categoryId}";
+                url += $"categoryId={categoryId}&";
+            if (vendorId.HasValue)
+                url += $"vendorId={vendorId}&";
+            url = url.TrimEnd('&', '?');
 
             var response = await _httpClient.GetAsync(url);
             response.EnsureSuccessStatusCode();

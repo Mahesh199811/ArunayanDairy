@@ -10,14 +10,29 @@ public class ProductListViewModel : BaseViewModel
     private readonly IProductService _productService;
     private readonly IOrderService _orderService;
     
+    private Vendor? _selectedVendor;
     private Category? _selectedCategory;
     private DateTime _selectedDate = DateTime.Today;
     private string _searchText = string.Empty;
 
+    public ObservableCollection<Vendor> Vendors { get; } = new();
     public ObservableCollection<Category> Categories { get; } = new();
     public ObservableCollection<Product> Products { get; } = new();
     public ObservableCollection<Product> FilteredProducts { get; } = new();
     public ObservableCollection<CartItem> CartItems { get; } = new();
+
+    public Vendor? SelectedVendor
+    {
+        get => _selectedVendor;
+        set
+        {
+            SetProperty(ref _selectedVendor, value);
+            CartItems.Clear(); // Clear cart when vendor changes
+            OnPropertyChanged(nameof(CartItemCount));
+            OnPropertyChanged(nameof(CartTotal));
+            _ = LoadProductsAsync();
+        }
+    }
 
     public Category? SelectedCategory
     {
@@ -86,6 +101,20 @@ public class ProductListViewModel : BaseViewModel
             IsBusy = true;
             ClearError();
 
+            // Load vendors
+            var vendors = await _productService.GetVendorsAsync();
+            Vendors.Clear();
+            foreach (var vendor in vendors)
+            {
+                Vendors.Add(vendor);
+            }
+            
+            // Auto-select first vendor if none selected
+            if (SelectedVendor == null && Vendors.Count > 0)
+            {
+                SelectedVendor = Vendors.First();
+            }
+
             // Load categories
             var categories = await _productService.GetCategoriesAsync();
             Categories.Clear();
@@ -94,16 +123,10 @@ public class ProductListViewModel : BaseViewModel
             {
                 Categories.Add(category);
             }
-
-            await LoadProductsAsync();
         }
         catch (Exception ex)
         {
-            ErrorMessage = $"Error loading data: {ex.Message}";
-        }
-        finally
-        {
-            IsBusy = false;
+            ErrorMessage = $"Error loading categories: {ex.Message}";
         }
     }
 
@@ -111,8 +134,11 @@ public class ProductListViewModel : BaseViewModel
     {
         try
         {
+            if (SelectedVendor == null)
+                return;
+
             var categoryId = SelectedCategory?.Id != Guid.Empty ? SelectedCategory?.Id : null;
-            var products = await _productService.GetAvailableProductsAsync(SelectedDate, categoryId);
+            var products = await _productService.GetAvailableProductsAsync(SelectedDate, categoryId, SelectedVendor.Id);
             
             Products.Clear();
             foreach (var product in products)

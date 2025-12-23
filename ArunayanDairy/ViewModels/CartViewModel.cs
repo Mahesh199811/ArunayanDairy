@@ -115,8 +115,18 @@ public class CartViewModel : BaseViewModel
             IsBusy = true;
             ClearError();
 
+            // Get vendorId from first cart item (all items should be from same vendor)
+            var vendorId = CartItems.FirstOrDefault()?.Product?.VendorId ?? Guid.Empty;
+            
+            if (vendorId == Guid.Empty)
+            {
+                ErrorMessage = "Invalid vendor. Please try again.";
+                return;
+            }
+
             var request = new CreateOrderRequest
             {
+                VendorId = vendorId,
                 DeliveryDate = DeliveryDate,
                 Notes = Notes,
                 Items = CartItems.Select(c => new CreateOrderItemRequest

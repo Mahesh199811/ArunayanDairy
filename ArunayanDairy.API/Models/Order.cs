@@ -8,6 +8,7 @@ public class Order
     public Guid Id { get; set; } = Guid.NewGuid();
     public string OrderNumber { get; set; } = string.Empty; // e.g., ORD-20231221-0001
     public Guid CustomerId { get; set; }
+    public Guid? VendorId { get; set; } // Admin/Vendor from whom order is placed
     public DateTime OrderDate { get; set; } = DateTime.UtcNow;
     public DateTime DeliveryDate { get; set; }
     public OrderStatus Status { get; set; } = OrderStatus.Pending;
@@ -18,6 +19,7 @@ public class Order
 
     // Navigation properties
     public User Customer { get; set; } = null!;
+    public User? Vendor { get; set; } // Admin/Vendor from whom order is placed
     public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 
     /// <summary>

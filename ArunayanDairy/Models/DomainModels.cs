@@ -1,5 +1,12 @@
 namespace ArunayanDairy.Models;
 
+public class Vendor
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+}
+
 public class Category
 {
     public Guid Id { get; set; }
@@ -12,6 +19,8 @@ public class Category
 public class Product
 {
     public Guid Id { get; set; }
+    public Guid VendorId { get; set; }
+    public string VendorName { get; set; } = string.Empty;
     public Guid CategoryId { get; set; }
     public string CategoryName { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
@@ -43,6 +52,8 @@ public class Order
     public Guid CustomerId { get; set; }
     public string CustomerName { get; set; } = string.Empty;
     public string CustomerEmail { get; set; } = string.Empty;
+    public Guid VendorId { get; set; }
+    public string VendorName { get; set; } = string.Empty;
     public DateTime OrderDate { get; set; }
     public DateTime DeliveryDate { get; set; }
     public string Status { get; set; } = string.Empty;
@@ -72,6 +83,7 @@ public class CartItem
 
 public class CreateOrderRequest
 {
+    public Guid VendorId { get; set; }
     public DateTime DeliveryDate { get; set; }
     public string? Notes { get; set; }
     public List<CreateOrderItemRequest> Items { get; set; } = new();

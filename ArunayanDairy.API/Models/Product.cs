@@ -6,6 +6,7 @@ namespace ArunayanDairy.API.Models;
 public class Product
 {
     public Guid Id { get; set; } = Guid.NewGuid();
+    public Guid? VendorId { get; set; } // Admin/Vendor who owns this product
     public Guid CategoryId { get; set; }
     public string Name { get; set; } = string.Empty;
     public string? Description { get; set; }
@@ -20,6 +21,7 @@ public class Product
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
     // Navigation properties
+    public User? Vendor { get; set; } // Admin/Vendor who owns this product
     public Category Category { get; set; } = null!;
     public ICollection<ProductAvailability> Availabilities { get; set; } = new List<ProductAvailability>();
     public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();

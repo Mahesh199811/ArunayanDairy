@@ -17,7 +17,7 @@ public interface IProductService
     // Product operations
     Task<IEnumerable<ProductDto>> GetProductsAsync(Guid? categoryId = null, bool? isActive = null);
     Task<ProductDetailDto?> GetProductByIdAsync(Guid id);
-    Task<IEnumerable<ProductDto>> GetAvailableProductsAsync(DateTime date, Guid? categoryId = null);
+    Task<IEnumerable<ProductDto>> GetAvailableProductsAsync(DateTime date, Guid? categoryId = null, Guid? vendorId = null);
     Task<ProductDto> CreateProductAsync(CreateProductDto dto);
     Task<ProductDto?> UpdateProductAsync(Guid id, CreateProductDto dto);
     Task<bool> DeleteProductAsync(Guid id);

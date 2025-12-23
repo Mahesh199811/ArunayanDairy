@@ -140,13 +140,14 @@ public class ProductService : IProductService
         return productDto;
     }
 
-    public async Task<IEnumerable<ProductDto>> GetAvailableProductsAsync(DateTime date, Guid? categoryId = null)
+    public async Task<IEnumerable<ProductDto>> GetAvailableProductsAsync(DateTime date, Guid? categoryId = null, Guid? vendorId = null)
     {
         var dateOnly = date.Date;
 
         var products = await _unitOfWork.Products.FindAsync(p =>
             p.IsActive &&
-            (!categoryId.HasValue || p.CategoryId == categoryId.Value));
+            (!categoryId.HasValue || p.CategoryId == categoryId.Value) &&
+            (!vendorId.HasValue || p.VendorId == vendorId.Value));
 
         var productList = products.ToList();
         var productIds = productList.Select(p => p.Id).ToList();

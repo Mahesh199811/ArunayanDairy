@@ -134,6 +134,14 @@ public class ApplicationDbContext : DbContext
                 .WithMany(c => c.Products)
                 .HasForeignKey(e => e.CategoryId)
                 .OnDelete(DeleteBehavior.Restrict);
+            
+            // Foreign key to User (Vendor)
+            entity.HasOne(e => e.Vendor)
+                .WithMany()
+                .HasForeignKey(e => e.VendorId)
+                .OnDelete(DeleteBehavior.Restrict);
+            
+            entity.HasIndex(e => e.VendorId);
         });
     }
 
@@ -212,6 +220,14 @@ public class ApplicationDbContext : DbContext
                 .OnDelete(DeleteBehavior.Restrict);
             
             entity.HasIndex(e => e.CustomerId);
+            
+            // Foreign key to User (Vendor)
+            entity.HasOne(e => e.Vendor)
+                .WithMany()
+                .HasForeignKey(e => e.VendorId)
+                .OnDelete(DeleteBehavior.Restrict);
+            
+            entity.HasIndex(e => e.VendorId);
         });
     }
 

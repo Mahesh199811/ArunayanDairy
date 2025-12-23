@@ -28,19 +28,27 @@
 
         <!-- Filters -->
         <Grid Grid.Row="2" 
-              ColumnDefinitions="*,Auto" 
+              ColumnDefinitions="*,*,Auto" 
               Margin="10,5"
               ColumnSpacing="10">
             
             <Picker Grid.Column="0"
+                    Title="Select Vendor"
+                    ItemsSource="{Binding Vendors}"
+                    ItemDisplayBinding="{Binding Name}"
+                    SelectedItem="{Binding SelectedVendor}"
+                    BackgroundColor="{StaticResource Primary}"
+                    TextColor="White" />
+            
+            <Picker Grid.Column="1"
                     Title="Category"
                     ItemsSource="{Binding Categories}"
                     ItemDisplayBinding="{Binding Name}"
                     SelectedItem="{Binding SelectedCategory}" />
 
-            <DatePicker Grid.Column="1"
+            <DatePicker Grid.Column="2"
                         Date="{Binding SelectedDate}"
-                        Format="MMM dd, yyyy" />
+                        Format="MMM dd" />
         </Grid>
 
         <!-- Products List -->
