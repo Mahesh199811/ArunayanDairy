@@ -51,7 +51,7 @@
                                            FontSize="18"
                                            FontAttributes="Bold"
                                            TextColor="{StaticResource Gray900}"/>
-                                    <Label Text="{Binding Category.Name}"
+                                    <Label Text="{Binding CategoryName}"
                                            FontSize="14"
                                            TextColor="{StaticResource Primary}"
                                            Margin="0,4,0,0"/>
