@@ -117,6 +117,10 @@ public class LoginViewModel : INotifyPropertyChanged
                     await Shell.Current.GoToAsync("//Products");
                 }
             }
+            else
+            {
+                ErrorMessage = "Login failed. Please try again.";
+            }
         }
         catch (Exception ex)
         {
