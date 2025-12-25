@@ -139,7 +139,7 @@
                        TextColor="{StaticResource Gray900}"/>
                 <Picker ItemsSource="{Binding Categories}"
                         ItemDisplayBinding="{Binding Name}"
-                        SelectedItem="{Binding SelectedProduct.Category}"
+                        SelectedItem="{Binding SelectedCategory}"
                         Title="Select category"/>
 
                 <Label Text="Base Price (₹) *"

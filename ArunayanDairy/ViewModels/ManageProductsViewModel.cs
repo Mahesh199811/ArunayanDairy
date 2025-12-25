@@ -11,6 +11,7 @@ public class ManageProductsViewModel : BaseViewModel
     private ObservableCollection<Product> _products = new();
     private ObservableCollection<Category> _categories = new();
     private Product? _selectedProduct;
+    private Category? _selectedCategory;
     private bool _isEditing;
 
     public ManageProductsViewModel(IProductService productService)
@@ -43,7 +44,25 @@ public class ManageProductsViewModel : BaseViewModel
         set
         {
             SetProperty(ref _selectedProduct, value);
+            if (value != null)
+            {
+                SelectedCategory = Categories.FirstOrDefault(c => c.Id == value.CategoryId);
+            }
             ((Command)SaveProductCommand).ChangeCanExecute();
+        }
+    }
+
+    public Category? SelectedCategory
+    {
+        get => _selectedCategory;
+        set
+        {
+            SetProperty(ref _selectedCategory, value);
+            if (SelectedProduct != null && value != null)
+            {
+                SelectedProduct.CategoryId = value.Id;
+                SelectedProduct.CategoryName = value.Name;
+            }
         }
     }
 
