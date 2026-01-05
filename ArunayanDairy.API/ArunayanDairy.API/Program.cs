@@ -12,14 +12,11 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure Kestrel to listen on port 5000 for Elastic Beanstalk (only in Production)
-if (!builder.Environment.IsDevelopment())
+// Configure Kestrel to listen on port 5000 for Elastic Beanstalk
+builder.WebHost.ConfigureKestrel(serverOptions =>
 {
-    builder.WebHost.ConfigureKestrel(serverOptions =>
-    {
-        serverOptions.ListenAnyIP(5000);
-    });
-}
+    serverOptions.ListenAnyIP(5000);
+});
 
 // Add services to the container
 builder.Services.AddControllers();
