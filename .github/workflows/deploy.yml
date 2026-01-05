@@ -1,0 +1,75 @@
+name: Deploy to AWS Elastic Beanstalk
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'ArunayanDairy.API/**'
+      - '.github/workflows/deploy.yml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore ArunayanDairy.API/ArunayanDairy.API/ArunayanDairy.API.csproj
+
+    - name: Build
+      run: dotnet build ArunayanDairy.API/ArunayanDairy.API/ArunayanDairy.API.csproj --configuration Release --no-restore
+
+    - name: Publish
+      run: dotnet publish ArunayanDairy.API/ArunayanDairy.API/ArunayanDairy.API.csproj -c Release -o publish --self-contained -r linux-x64
+
+    - name: Create Procfile
+      run: echo 'web: ./ArunayanDairy.API' > publish/Procfile
+
+    - name: Create deployment package
+      run: |
+        cd publish
+        zip -r ../deploy.zip .
+        cd ..
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: eu-west-1
+
+    - name: Deploy to Elastic Beanstalk
+      run: |
+        # Generate version label with timestamp
+        VERSION_LABEL="app-$(date +%y%m%d_%H%M%S)"
+        
+        # Upload to S3
+        aws s3 cp deploy.zip s3://elasticbeanstalk-eu-west-1-${{ secrets.AWS_ACCOUNT_ID }}/ArunayanDairy/$VERSION_LABEL.zip
+        
+        # Create application version
+        aws elasticbeanstalk create-application-version \
+          --application-name ArunayanDairy \
+          --version-label $VERSION_LABEL \
+          --source-bundle S3Bucket="elasticbeanstalk-eu-west-1-${{ secrets.AWS_ACCOUNT_ID }}",S3Key="ArunayanDairy/$VERSION_LABEL.zip"
+        
+        # Update environment
+        aws elasticbeanstalk update-environment \
+          --application-name ArunayanDairy \
+          --environment-name ArunayanDairy-dev \
+          --version-label $VERSION_LABEL
+
+    - name: Wait for deployment
+      run: |
+        echo "Waiting for deployment to complete..."
+        aws elasticbeanstalk wait environment-updated \
+          --application-name ArunayanDairy \
+          --environment-names ArunayanDairy-dev
+        echo "Deployment completed!"
