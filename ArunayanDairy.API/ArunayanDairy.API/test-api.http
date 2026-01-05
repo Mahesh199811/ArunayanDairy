@@ -1,0 +1,79 @@
+@ArunayanDairy.API_HostAddress = http://localhost:5291
+@token = your-jwt-token-here
+
+### 1. User Signup (Customer)
+POST {{ArunayanDairy.API_HostAddress}}/api/auth/signup
+Content-Type: application/json
+
+{
+  "email": "customer@example.com",
+  "password": "password123",
+  "fullName": "John Doe",
+  "phoneNumber": "+1234567890",
+  "address": "123 Main St, City"
+}
+
+### 2. Admin Login (Use this to create products)
+POST {{ArunayanDairy.API_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@arunayandairy.com",
+  "password": "Admin@123"
+}
+
+### 3. Customer Login
+POST {{ArunayanDairy.API_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "customer@example.com",
+  "password": "password123"
+}
+
+### 3. Get All Products (No Auth Required)
+GET {{ArunayanDairy.API_HostAddress}}/api/products
+Accept: application/json
+
+### 4. Create Product (Admin Only - Requires Auth)
+POST {{ArunayanDairy.API_HostAddress}}/api/products
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Fresh Milk",
+  "description": "Pure cow milk",
+  "price": 50.00,
+  "unit": "Liter",
+  "stockQuantity": 100,
+  "category": "Milk",
+  "imageUrl": "https://example.com/milk.jpg",
+  "isAvailable": true
+}
+
+### 5. Get Products By Category
+GET {{ArunayanDairy.API_HostAddress}}/api/products/category/Milk
+Accept: application/json
+
+### 6. Create Order (Requires Auth)
+POST {{ArunayanDairy.API_HostAddress}}/api/orders
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "items": [
+    {
+      "productId": "product-id-here",
+      "quantity": 2
+    }
+  ],
+  "deliveryAddress": "123 Main St, City",
+  "paymentMethod": "Cash",
+  "deliveryDate": "2026-01-10T10:00:00Z"
+}
+
+### 7. Get My Orders (Requires Auth)
+GET {{ArunayanDairy.API_HostAddress}}/api/orders/my-orders
+Authorization: Bearer {{token}}
+
+###

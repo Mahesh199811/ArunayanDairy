@@ -72,3 +72,9 @@ msbuild.wrn
 Thumbs.db
 ehthumbs.db
 Desktop.ini
+bin/
+obj/
+publish/
+*.zip
+*.db
+.elasticbeanstalk/
