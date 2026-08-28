@@ -44,7 +44,6 @@ function App() {
       {(page === "products" || (signedIn && page === "login")) && (
         <>
           <section className="hero">
-            <img src="/images/dairy-hero.png" alt="" className="hero-image" />
             <div className="hero-veil" />
             <div className="hero-copy">
               <p className="eyebrow light">Since the first light</p>

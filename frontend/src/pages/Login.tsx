@@ -50,7 +50,7 @@ export default function Login({ onSignedIn }: LoginProps) {
   return (
     <section id="account" className="account-section">
       <div className="account-photo">
-        <img src="/images/dairy-hero.png" alt="Cows grazing at Arunayan farm" />
+        <img src="/images/dairy-hero.jpg" alt="Cows grazing at Arunayan farm" />
         <div className="account-photo-copy">
           <p>From our farm</p>
           <h2>Milk collected at dawn, at your door the same day.</h2>

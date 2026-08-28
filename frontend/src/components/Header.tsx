@@ -18,7 +18,7 @@ export default function Header({
 }: HeaderProps) {
   const [scrolled, setScrolled] = useState(false);
   const { items } = useCart();
-  const cartCount = items.reduce((sum, item) => sum + item.quantity, 0);
+  const cartCount = items.length;
 
   useEffect(() => {
     function onScroll() {

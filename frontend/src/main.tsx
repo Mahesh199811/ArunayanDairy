@@ -5,12 +5,16 @@ import App from "./App.tsx";
 import { CartProvider } from "./context/CartContext";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <ErrorBoundary>
-      <CartProvider>
-        <App />
-      </CartProvider>
-    </ErrorBoundary>
-  </StrictMode>
-);
+const root = document.getElementById("root");
+
+if (root) {
+  createRoot(root).render(
+    <StrictMode>
+      <ErrorBoundary>
+        <CartProvider>
+          <App />
+        </CartProvider>
+      </ErrorBoundary>
+    </StrictMode>
+  );
+}

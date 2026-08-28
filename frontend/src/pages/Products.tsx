@@ -16,22 +16,79 @@ function productImage(name: string) {
   const value = name.toLowerCase();
 
   if (value.includes("curd") || value.includes("dahi") || value.includes("yogurt")) {
-    return "/images/product-curd.png";
+    return "/images/product-curd.jpg";
   }
 
   if (value.includes("paneer") || value.includes("cheese") || value.includes("ghee")) {
-    return "/images/product-paneer.png";
+    return "/images/product-paneer.jpg";
   }
 
-  return "/images/product-milk.png";
+  return "/images/product-milk.jpg";
+}
+
+function ProductQtyControl({ product }: { product: Product }) {
+  const { items, addToCart, updateQuantity, removeFromCart } = useCart();
+  const inCart = items.find((item) => item.productId === product.id);
+  const quantity = inCart?.quantity ?? 0;
+
+  function addOne() {
+    if (quantity === 0) {
+      addToCart({
+        productId: product.id,
+        name: product.name,
+        price: product.price,
+        unit: product.unit,
+        quantity: 1,
+        availableQuantity: product.availableQuantity,
+        availableDate: product.availableDate,
+      });
+      return;
+    }
+
+    if (quantity < product.availableQuantity) {
+      updateQuantity(product.id, quantity + 1);
+    }
+  }
+
+  function removeOne() {
+    if (quantity <= 1) {
+      removeFromCart(product.id);
+      return;
+    }
+
+    updateQuantity(product.id, quantity - 1);
+  }
+
+  if (quantity === 0) {
+    return (
+      <button type="button" className="btn-primary" onClick={addOne}>
+        Add to Cart
+      </button>
+    );
+  }
+
+  return (
+    <div className="qty-stepper" aria-label={`${product.name} quantity`}>
+      <button type="button" onClick={removeOne} aria-label="Decrease quantity">
+        −
+      </button>
+      <span>{quantity}</span>
+      <button
+        type="button"
+        onClick={addOne}
+        disabled={quantity >= product.availableQuantity}
+        aria-label="Increase quantity"
+      >
+        +
+      </button>
+    </div>
+  );
 }
 
 export default function Products() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
-  const [notice, setNotice] = useState("");
-  const { addToCart } = useCart();
 
   useEffect(() => {
     loadProducts();
@@ -49,21 +106,6 @@ export default function Products() {
     }
   }
 
-  function handleAddToCart(product: Product) {
-    addToCart({
-      productId: product.id,
-      name: product.name,
-      price: product.price,
-      unit: product.unit,
-      quantity: 1,
-      availableQuantity: product.availableQuantity,
-      availableDate: product.availableDate,
-    });
-
-    setNotice(`${product.name} added to cart`);
-    window.setTimeout(() => setNotice(""), 2200);
-  }
-
   return (
     <section id="products" className="products-section">
       <div className="section-heading">
@@ -73,8 +115,6 @@ export default function Products() {
           Harvested this morning. Order by evening for tomorrow's delivery.
         </p>
       </div>
-
-      {notice && <p className="toast">{notice}</p>}
 
       {loading && <p className="status-copy">Bringing in today's batch…</p>}
 
@@ -121,13 +161,7 @@ export default function Products() {
                 </span>
               </div>
 
-              <button
-                type="button"
-                className="btn-primary"
-                onClick={() => handleAddToCart(product)}
-              >
-                Add to Cart
-              </button>
+              <ProductQtyControl product={product} />
             </div>
           </article>
         ))}
