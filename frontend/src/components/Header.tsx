@@ -64,13 +64,15 @@ export default function Header({
         >
           My Orders
         </button>
-        <button
-          type="button"
-          className={page === "login" ? "is-active" : ""}
-          onClick={() => onNavigate("login")}
-        >
-          {userName ? "Account" : "Sign in"}
-        </button>
+        {!userName && (
+          <button
+            type="button"
+            className={page === "login" ? "is-active" : ""}
+            onClick={() => onNavigate("login")}
+          >
+            Sign in
+          </button>
+        )}
       </nav>
 
       {userName ? (

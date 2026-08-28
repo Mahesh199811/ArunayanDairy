@@ -21,16 +21,27 @@ function App() {
     setPage("login");
   }
 
+  const signedIn = Boolean(userName);
+
+  function handleNavigate(next: AppPage) {
+    if (signedIn && next === "login") {
+      setPage("products");
+      return;
+    }
+
+    setPage(next);
+  }
+
   return (
     <div id="top" className="page">
       <Header
         userName={userName}
         page={page}
-        onNavigate={setPage}
+        onNavigate={handleNavigate}
         onSignOut={handleSignOut}
       />
 
-      {page === "products" && (
+      {(page === "products" || (signedIn && page === "login")) && (
         <>
           <section className="hero">
             <img src="/images/dairy-hero.png" alt="" className="hero-image" />
@@ -64,7 +75,7 @@ function App() {
         </>
       )}
 
-      {page === "login" && (
+      {page === "login" && !signedIn && (
         <Login
           onSignedIn={(name) => {
             setUserName(name);
