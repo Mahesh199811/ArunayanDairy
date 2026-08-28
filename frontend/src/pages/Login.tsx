@@ -26,13 +26,13 @@ export default function Login({ onSignedIn }: LoginProps) {
         const result = await loginUser({ email, password });
         localStorage.setItem("token", result.token);
         localStorage.setItem("user", JSON.stringify(result.user));
-        onSignedIn(result.user.fullName);
+        onSignedIn(result.user?.fullName ?? "");
         setMessage("Welcome to Arunayan Dairy. You are signed in.");
       } else {
         const result = await loginUser({ email, password });
         localStorage.setItem("token", result.token);
         localStorage.setItem("user", JSON.stringify(result.user));
-        onSignedIn(result.user.fullName);
+        onSignedIn(result.user?.fullName ?? "");
         setMessage("Signed in. Browse today's dairy.");
       }
     } catch (err) {

@@ -40,7 +40,7 @@ export default function Products() {
   async function loadProducts() {
     try {
       const data = await getProducts();
-      setProducts(data);
+      setProducts(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error(error);
       setFailed(true);

@@ -72,7 +72,7 @@ export default function Header({
       </nav>
 
       {userName ? (
-        <p className="welcome">Namaste, {userName.split(" ")[0]}</p>
+        <p className="welcome">Namaste, {userName.split(" ")[0] || "there"}</p>
       ) : (
         <button
           type="button"

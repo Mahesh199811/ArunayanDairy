@@ -214,7 +214,7 @@ h3 {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  animation: kenburns 18s ease-in-out infinite alternate;
+  animation: kenburns 16s ease-out forwards;
 }
 
 .hero-veil {

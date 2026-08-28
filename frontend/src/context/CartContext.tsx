@@ -26,10 +26,13 @@ interface CartContextType {
   clearCart: () => void;
 }
 
-const CartContext =
-  createContext<CartContextType | undefined>(
-    undefined
-  );
+const CartContext = createContext<CartContextType>({
+  items: [],
+  addToCart: () => {},
+  removeFromCart: () => {},
+  updateQuantity: () => {},
+  clearCart: () => {},
+});
 
 export function CartProvider({
   children,
@@ -111,13 +114,5 @@ export function CartProvider({
 }
 
 export function useCart() {
-  const context = useContext(CartContext);
-
-  if (!context) {
-    throw new Error(
-      "useCart must be used inside CartProvider"
-    );
-  }
-
-  return context;
+  return useContext(CartContext);
 }

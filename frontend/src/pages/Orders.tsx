@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getUserOrders } from "../services/orderService";
+import { readStoredUser } from "../lib/userStorage";
 
 interface OrderItem {
   productName: string;
@@ -26,20 +27,19 @@ export default function Orders() {
   }, []);
 
   async function loadOrders() {
-    const userJson = localStorage.getItem("user");
+    const user = readStoredUser();
 
-    if (!userJson) {
+    if (!user) {
       setMissingUser(true);
       return;
     }
 
-    const user = JSON.parse(userJson);
-
     try {
       const data = await getUserOrders(user.id);
-      setOrders(data);
+      setOrders(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error(error);
+      setOrders([]);
     }
   }
 
@@ -60,7 +60,7 @@ export default function Orders() {
         {orders.map((order) => (
           <article key={order.id} className="order-card">
             <div className="order-head">
-              <h3>Order {order.id.slice(0, 8)}</h3>
+              <h3>Order {(order.id ?? "").slice(0, 8) || "—"}</h3>
               <span className="status">{order.status}</span>
             </div>
 
@@ -73,7 +73,7 @@ export default function Orders() {
               })}
             </p>
 
-            {order.items.map((item, index) => (
+            { (order.items ?? []).map((item, index) => (
               <p key={index}>
                 {item.productName} × {item.quantity} = ₹{item.totalPrice}
               </p>

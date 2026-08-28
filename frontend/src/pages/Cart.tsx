@@ -2,12 +2,16 @@ import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { useCart } from "../context/CartContext";
 import { createOrder } from "../services/orderService";
+import { readStoredUser } from "../lib/userStorage";
 
 interface CartProps {
   onOrderPlaced: () => void;
 }
 
-function toDateInput(value: string) {
+function toDateInput(value?: string) {
+  if (!value) {
+    return "";
+  }
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
     return "";
@@ -39,8 +43,7 @@ export default function Cart({ onOrderPlaced }: CartProps) {
     }
   }, [suggestedDate]);
 
-  const userJson = localStorage.getItem("user");
-  const user = userJson ? JSON.parse(userJson) : null;
+  const user = readStoredUser();
 
   const totalAmount = items.reduce(
     (total, item) => total + item.price * item.quantity,
