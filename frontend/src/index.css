@@ -156,10 +156,32 @@ h3 {
   color: var(--leaf);
 }
 
+.session {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .welcome {
   margin: 0;
   font-size: 14px;
   color: var(--leaf-dark);
+}
+
+.sign-out {
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--leaf-dark);
+  cursor: pointer;
+}
+
+.sign-out:hover {
+  background: var(--cream-dark);
 }
 
 .header-cta,
@@ -592,7 +614,10 @@ input:focus {
     flex-wrap: wrap;
   }
 
-  .header-cta,
+  .header-cta {
+    display: none;
+  }
+
   .welcome {
     display: none;
   }

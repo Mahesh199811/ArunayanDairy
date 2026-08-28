@@ -4,13 +4,22 @@ import Login from "./pages/Login";
 import Products from "./pages/Products";
 import Cart from "./pages/Cart";
 import Orders from "./pages/Orders";
-import { readStoredName } from "./lib/userStorage";
+import { readStoredName, signOut } from "./lib/userStorage";
+import { useCart } from "./context/CartContext";
 
 function App() {
   const [page, setPage] = useState<AppPage>(
     readStoredName() ? "products" : "login"
   );
   const [userName, setUserName] = useState(readStoredName);
+  const { clearCart } = useCart();
+
+  function handleSignOut() {
+    signOut();
+    clearCart();
+    setUserName("");
+    setPage("login");
+  }
 
   return (
     <div id="top" className="page">
@@ -18,6 +27,7 @@ function App() {
         userName={userName}
         page={page}
         onNavigate={setPage}
+        onSignOut={handleSignOut}
       />
 
       {page === "products" && (

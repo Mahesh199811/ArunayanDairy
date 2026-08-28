@@ -29,3 +29,8 @@ export function readStoredUser(): StoredUser | null {
 export function readStoredName() {
   return readStoredUser()?.fullName ?? "";
 }
+
+export function signOut() {
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+}

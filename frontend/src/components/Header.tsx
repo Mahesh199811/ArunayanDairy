@@ -7,12 +7,14 @@ interface HeaderProps {
   userName?: string;
   page: AppPage;
   onNavigate: (page: AppPage) => void;
+  onSignOut: () => void;
 }
 
 export default function Header({
   userName,
   page,
   onNavigate,
+  onSignOut,
 }: HeaderProps) {
   const [scrolled, setScrolled] = useState(false);
   const { items } = useCart();
@@ -72,7 +74,12 @@ export default function Header({
       </nav>
 
       {userName ? (
-        <p className="welcome">Namaste, {userName.split(" ")[0] || "there"}</p>
+        <div className="session">
+          <p className="welcome">Namaste, {userName.split(" ")[0] || "there"}</p>
+          <button type="button" className="sign-out" onClick={onSignOut}>
+            Sign out
+          </button>
+        </div>
       ) : (
         <button
           type="button"
