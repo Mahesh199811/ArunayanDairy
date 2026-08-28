@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getProducts } from "../services/productService";
+import { useCart } from "../context/CartContext";
 
 interface Product {
   id: string;
@@ -29,6 +30,8 @@ export default function Products() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
+  const [notice, setNotice] = useState("");
+  const { addToCart } = useCart();
 
   useEffect(() => {
     loadProducts();
@@ -46,6 +49,21 @@ export default function Products() {
     }
   }
 
+  function handleAddToCart(product: Product) {
+    addToCart({
+      productId: product.id,
+      name: product.name,
+      price: product.price,
+      unit: product.unit,
+      quantity: 1,
+      availableQuantity: product.availableQuantity,
+      availableDate: product.availableDate,
+    });
+
+    setNotice(`${product.name} added to cart`);
+    window.setTimeout(() => setNotice(""), 2200);
+  }
+
   return (
     <section id="products" className="products-section">
       <div className="section-heading">
@@ -55,6 +73,8 @@ export default function Products() {
           Harvested this morning. Order by evening for tomorrow's delivery.
         </p>
       </div>
+
+      {notice && <p className="toast">{notice}</p>}
 
       {loading && <p className="status-copy">Bringing in today's batch…</p>}
 
@@ -100,6 +120,14 @@ export default function Products() {
                   })}
                 </span>
               </div>
+
+              <button
+                type="button"
+                className="btn-primary"
+                onClick={() => handleAddToCart(product)}
+              >
+                Add to Cart
+              </button>
             </div>
           </article>
         ))}

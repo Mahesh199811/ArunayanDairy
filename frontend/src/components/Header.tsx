@@ -1,11 +1,22 @@
 import { useEffect, useState } from "react";
+import { useCart } from "../context/CartContext";
+
+export type AppPage = "login" | "products" | "cart" | "orders";
 
 interface HeaderProps {
   userName?: string;
+  page: AppPage;
+  onNavigate: (page: AppPage) => void;
 }
 
-export default function Header({ userName }: HeaderProps) {
+export default function Header({
+  userName,
+  page,
+  onNavigate,
+}: HeaderProps) {
   const [scrolled, setScrolled] = useState(false);
+  const { items } = useCart();
+  const cartCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   useEffect(() => {
     function onScroll() {
@@ -19,7 +30,7 @@ export default function Header({ userName }: HeaderProps) {
 
   return (
     <header className={`site-header ${scrolled ? "is-scrolled" : ""}`}>
-      <a href="#top" className="brand">
+      <button type="button" className="brand" onClick={() => onNavigate("products")}>
         <span className="brand-mark" aria-hidden="true">
           A
         </span>
@@ -27,19 +38,49 @@ export default function Header({ userName }: HeaderProps) {
           <strong>Arunayan Dairy</strong>
           <small>Farm fresh, daily</small>
         </span>
-      </a>
+      </button>
 
       <nav className="nav">
-        <a href="#products">Products</a>
-        <a href="#account">{userName ? "Account" : "Sign in"}</a>
+        <button
+          type="button"
+          className={page === "products" ? "is-active" : ""}
+          onClick={() => onNavigate("products")}
+        >
+          Products
+        </button>
+        <button
+          type="button"
+          className={page === "cart" ? "is-active" : ""}
+          onClick={() => onNavigate("cart")}
+        >
+          Cart{cartCount > 0 ? ` (${cartCount})` : ""}
+        </button>
+        <button
+          type="button"
+          className={page === "orders" ? "is-active" : ""}
+          onClick={() => onNavigate("orders")}
+        >
+          My Orders
+        </button>
+        <button
+          type="button"
+          className={page === "login" ? "is-active" : ""}
+          onClick={() => onNavigate("login")}
+        >
+          {userName ? "Account" : "Sign in"}
+        </button>
       </nav>
 
       {userName ? (
         <p className="welcome">Namaste, {userName.split(" ")[0]}</p>
       ) : (
-        <a className="header-cta" href="#account">
+        <button
+          type="button"
+          className="header-cta"
+          onClick={() => onNavigate("login")}
+        >
           Order fresh milk
-        </a>
+        </button>
       )}
     </header>
   );
