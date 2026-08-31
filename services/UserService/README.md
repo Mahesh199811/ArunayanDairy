@@ -8,11 +8,12 @@ The API lives in `UserService.Api` (ASP.NET Core on .NET 8). Passwords are hashe
 
 - User model (`Id`, `FullName`, `Email`, `PasswordHash`, `CreatedAt`)
 - Register and login DTOs
-- EF Core in-memory database (`UserDatabase`)
+- EF Core in-memory database (`UserDbContext`)
 - JWT token generation (`AuthService`)
 - `POST /api/auth/register` and `POST /api/auth/login`
 - JWT Bearer authentication wired in `Program.cs`
 - Swagger UI in Development
+- `Dockerfile` and `.dockerignore`
 
 There are no protected user/profile endpoints yet. JWT middleware is ready for them.
 
@@ -26,10 +27,15 @@ UserService/
     ├── Controllers/AuthController.cs
     ├── Data/UserDbContext.cs
     ├── DTOs/
+    │   ├── LoginRequest.cs
+    │   └── RegisterRequest.cs
     ├── Models/User.cs
     ├── Services/AuthService.cs
+    ├── Properties/launchSettings.json
     ├── Program.cs
-    └── appsettings.json
+    ├── appsettings.json
+    ├── Dockerfile
+    └── .dockerignore
 ```
 
 ## Packages
@@ -39,7 +45,22 @@ UserService/
 - `Microsoft.AspNetCore.Authentication.JwtBearer` — JWT validation
 - `Swashbuckle.AspNetCore` — Swagger
 
-## Run locally
+## Run with Docker Compose (preferred)
+
+From the repository root:
+
+```bash
+docker compose up --build
+```
+
+| | |
+|---|---|
+| API | http://localhost:5080 |
+| Swagger | http://localhost:5080/swagger |
+
+Host port is **5080** because macOS AirPlay often occupies **5000**. Inside the container the app listens on **8080**.
+
+## Run with `dotnet`
 
 ```bash
 cd services/UserService/UserService.Api
@@ -47,7 +68,7 @@ dotnet restore
 dotnet run --launch-profile http
 ```
 
-Use `--launch-profile http` so the app starts in Development on port 5051. Without that profile, Swagger is not enabled.
+Use `--launch-profile http` so the app starts in Development. Without that profile, Swagger is not enabled.
 
 | | |
 |---|---|
@@ -114,8 +135,10 @@ JWT claims include `sub` (user id), `email`, and name. Issuer is `ArunayanDairy.
 
 ## Test with curl
 
+Replace the host/port if you are using Compose (`5080`) instead of `dotnet` (`5051`).
+
 ```bash
-curl -X POST "http://localhost:5051/api/auth/register" \
+curl -X POST "http://localhost:5080/api/auth/register" \
   -H "Content-Type: application/json" \
   -d '{
     "fullName": "John Doe",
@@ -123,7 +146,7 @@ curl -X POST "http://localhost:5051/api/auth/register" \
     "password": "Password123!"
   }'
 
-curl -X POST "http://localhost:5051/api/auth/login" \
+curl -X POST "http://localhost:5080/api/auth/login" \
   -H "Content-Type: application/json" \
   -d '{
     "email": "john@example.com",
@@ -134,7 +157,7 @@ curl -X POST "http://localhost:5051/api/auth/login" \
 When protected routes exist, send the token as:
 
 ```bash
-curl -H "Authorization: Bearer <token>" "http://localhost:5051/api/..."
+curl -H "Authorization: Bearer <token>" "http://localhost:5080/api/..."
 ```
 
 ## Notes
