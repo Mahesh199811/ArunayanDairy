@@ -81,6 +81,8 @@ dotnet run --launch-profile http
 }
 ```
 
+**Error:** `400` if name and description already exist on another product.
+
 ### POST `/api/products/{id}/reduce-stock`
 
 ```json
@@ -93,3 +95,4 @@ dotnet run --launch-profile http
 
 - In-memory store is empty after every restart. Recreate products before placing orders.
 - Price must be greater than zero. Available quantity cannot be negative. Reduce-stock fails if quantity exceeds stock.
+- Create is rejected (`400`) if another product already has the same name and description (case-insensitive).

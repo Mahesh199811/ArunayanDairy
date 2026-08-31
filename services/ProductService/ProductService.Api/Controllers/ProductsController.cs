@@ -56,11 +56,24 @@ public class ProductsController : ControllerBase
                 "Available quantity cannot be negative.");
         }
 
+        var name = request.Name.Trim();
+        var description = request.Description.Trim();
+
+        var duplicate = await _context.Products.AnyAsync(p =>
+            p.Name.ToLower() == name.ToLower() &&
+            p.Description.ToLower() == description.ToLower());
+
+        if (duplicate)
+        {
+            return BadRequest(
+                "A product with the same name and description already exists.");
+        }
+
         var product = new Product
         {
             Id = Guid.NewGuid(),
-            Name = request.Name,
-            Description = request.Description,
+            Name = name,
+            Description = description,
             Price = request.Price,
             Unit = request.Unit,
             AvailableQuantity = request.AvailableQuantity,
