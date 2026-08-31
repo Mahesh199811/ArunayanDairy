@@ -20,8 +20,15 @@ builder.Services.AddCors(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<UserDbContext>(options =>
-    options.UseInMemoryDatabase("UserDatabase"));
+var connectionString =
+    builder.Configuration.GetConnectionString(
+        "DefaultConnection");
+
+builder.Services.AddDbContext<UserDbContext>(
+    options =>
+        options.UseMySql(
+            connectionString,
+            ServerVersion.AutoDetect(connectionString)));
 
 builder.Services.AddScoped<AuthService>();
 
@@ -31,20 +38,24 @@ builder.Services.AddAuthentication(
     JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
+        options.TokenValidationParameters =
+            new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
 
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
+                ValidIssuer =
+                    builder.Configuration["Jwt:Issuer"],
 
-            IssuerSigningKey =
-                new SymmetricSecurityKey(
-                    Encoding.UTF8.GetBytes(jwtKey))
-        };
+                ValidAudience =
+                    builder.Configuration["Jwt:Audience"],
+
+                IssuerSigningKey =
+                    new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(jwtKey))
+            };
     });
 
 builder.Services.AddAuthorization();

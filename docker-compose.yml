@@ -1,5 +1,18 @@
 services:
 
+  mysql:
+    image: mysql:8.4
+    container_name: arunayandairy-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: arunayandairy_users
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - arunayandairy-network
+
   user-service:
     build:
       context: ./services/UserService/UserService.Api
@@ -8,7 +21,10 @@ services:
     ports:
       - "5080:8080"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: "Server=mysql;Port=3306;Database=arunayandairy_users;User=root;Password=rootpassword;"
+    depends_on:
+      - mysql
     networks:
       - arunayandairy-network
 
@@ -20,7 +36,10 @@ services:
     ports:
       - "5001:8080"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: "Server=mysql;Port=3306;Database=arunayandairy_products;User=root;Password=rootpassword;"
+    depends_on:
+      - mysql
     networks:
       - arunayandairy-network
 
@@ -32,11 +51,17 @@ services:
     ports:
       - "5002:8080"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: "Server=mysql;Port=3306;Database=arunayandairy_orders;User=root;Password=rootpassword;"
+      Services__ProductService: "http://product-service:8080/"
     depends_on:
+      - mysql
       - product-service
     networks:
       - arunayandairy-network
+
+volumes:
+  mysql-data:
 
 networks:
   arunayandairy-network:

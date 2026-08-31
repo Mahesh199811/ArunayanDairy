@@ -33,16 +33,21 @@ ArunayanDairy/
                          |
               arunayandairy-network
                          |
-        +----------------+----------------+
-        |                |                |
-        v                v                v
-   UserService     ProductService    OrderService
-  localhost:5080   localhost:5001    localhost:5002
+        +----------------+----------------+----------------+
+        |                |                |                |
+        v                v                v                v
+     MySQL         UserService     ProductService    OrderService
+  localhost:3306  localhost:5080   localhost:5001    localhost:5002
+        |                |
+        |                | EF Core
+        +----------------+  arunayandairy_users
                                          |
                                          | http://product-service:8080
                                          v
                                    ProductService
 ```
+
+User Service persists to MySQL (`arunayandairy_users`). Product and Order still use EF Core InMemory.
 
 The React app is not in Compose yet. Run it on the host and point it at the published ports (`frontend/src/services/api.ts`).
 
@@ -51,6 +56,7 @@ The React app is not in Compose yet. Run it on the host and point it at the publ
 | User Service | http://localhost:5080 | Swagger: `/swagger` |
 | Product Service | http://localhost:5001 | Swagger: `/swagger` |
 | Order Service | http://localhost:5002 | Swagger: `/swagger` |
+| MySQL | localhost:3306 | volume `mysql-data` |
 | Frontend | http://localhost:5173 | Vite; not containerized |
 
 Port **5080** is used for User Service on this Mac because **5000** is taken by AirPlay Receiver.
@@ -71,7 +77,9 @@ docker compose down
 
 Order Service talks to Product Service with Compose DNS: `http://product-service:8080/` (`Services:ProductService` in Order Service `appsettings.json`).
 
-Databases are still EF Core InMemory. Data is lost when containers restart.
+User Service talks to MySQL with Compose DNS: `Server=mysql` (`ConnectionStrings__DefaultConnection`). Local `dotnet run` uses `Server=localhost` in `appsettings.json`.
+
+User rows survive `docker compose stop user-service`. They are stored in the `mysql-data` volume. Product and Order data is still in-memory.
 
 ## Run a single service with `dotnet`
 
@@ -104,6 +112,6 @@ VPC, EC2, ECS, ALB, Auto Scaling, Route 53, CloudFront, API Gateway, Lambda, RDS
 
 - .NET 8 / ASP.NET Core Web API
 - React + TypeScript + Vite
-- EF Core InMemory (MySQL next)
+- EF Core + Pomelo MySQL (User Service); InMemory (Product, Order)
 - Docker / Docker Compose
 - GitHub

@@ -8,7 +8,7 @@ The API lives in `UserService.Api` (ASP.NET Core on .NET 8). Passwords are hashe
 
 - User model (`Id`, `FullName`, `Email`, `PasswordHash`, `CreatedAt`)
 - Register and login DTOs
-- EF Core in-memory database (`UserDbContext`)
+- EF Core + Pomelo MySQL (`UserDbContext`, database `arunayandairy_users`)
 - JWT token generation (`AuthService`)
 - `POST /api/auth/register` and `POST /api/auth/login`
 - JWT Bearer authentication wired in `Program.cs`
@@ -26,6 +26,7 @@ UserService/
 └── UserService.Api/
     ├── Controllers/AuthController.cs
     ├── Data/UserDbContext.cs
+    ├── Migrations/
     ├── DTOs/
     │   ├── LoginRequest.cs
     │   └── RegisterRequest.cs
@@ -41,7 +42,8 @@ UserService/
 ## Packages
 
 - `BCrypt.Net-Next` — password hashing
-- `Microsoft.EntityFrameworkCore.InMemory` — local database
+- `Pomelo.EntityFrameworkCore.MySql` — MySQL
+- `Microsoft.EntityFrameworkCore.Design` — EF migrations
 - `Microsoft.AspNetCore.Authentication.JwtBearer` — JWT validation
 - `Swashbuckle.AspNetCore` — Swagger
 
@@ -60,6 +62,14 @@ docker compose up --build
 
 Host port is **5080** because macOS AirPlay often occupies **5000**. Inside the container the app listens on **8080**.
 
+Compose sets `ConnectionStrings__DefaultConnection` to `Server=mysql;...Database=arunayandairy_users`. MySQL must be up first (`depends_on: mysql`). Apply schema from the host once:
+
+```bash
+docker compose up -d mysql
+cd services/UserService/UserService.Api
+dotnet ef database update
+```
+
 ## Run with `dotnet`
 
 ```bash
@@ -68,7 +78,7 @@ dotnet restore
 dotnet run --launch-profile http
 ```
 
-Use `--launch-profile http` so the app starts in Development. Without that profile, Swagger is not enabled.
+Use `--launch-profile http` so the app starts in Development. Without that profile, Swagger is not enabled. Start Compose MySQL first; `appsettings.json` uses `Server=localhost;Port=3306`.
 
 | | |
 |---|---|
@@ -162,6 +172,7 @@ curl -H "Authorization: Bearer <token>" "http://localhost:5080/api/..."
 
 ## Notes
 
-- The in-memory database is empty after every restart. Re-register before login.
+- Users persist in MySQL (`Users` table). Restarting User Service does not wipe accounts. Removing the `mysql-data` volume does.
+- `root` / `rootpassword` is local-only. Do not use it in AWS.
 - JWT settings are in `appsettings.json` (`Jwt:Key`, `Jwt:Issuer`, `Jwt:Audience`). The key is for local development only; replace it before any real deployment.
 - HTTPS redirection may warn locally because the `http` profile has no HTTPS port.
