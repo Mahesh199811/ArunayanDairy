@@ -60,6 +60,20 @@ services:
     networks:
       - arunayandairy-network
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: arunayandairy-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - user-service
+      - product-service
+      - order-service
+    networks:
+      - arunayandairy-network
+
 volumes:
   mysql-data:
 
