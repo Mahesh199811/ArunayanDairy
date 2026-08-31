@@ -38,16 +38,18 @@ ArunayanDairy/
         v                v                v                v
      MySQL         UserService     ProductService    OrderService
   localhost:3306  localhost:5080   localhost:5001    localhost:5002
-        |                |
-        |                | EF Core
-        +----------------+  arunayandairy_users
+        |                |                |
+        |                |                | EF Core
+        +----------------+----------------+
+                         |                |
+            arunayandairy_users    arunayandairy_products
                                          |
                                          | http://product-service:8080
                                          v
                                    ProductService
 ```
 
-User Service persists to MySQL (`arunayandairy_users`). Product and Order still use EF Core InMemory.
+User Service persists to MySQL (`arunayandairy_users`). Product Service persists to MySQL (`arunayandairy_products`). Order still uses EF Core InMemory.
 
 The React app is not in Compose yet. Run it on the host and point it at the published ports (`frontend/src/services/api.ts`).
 
@@ -77,9 +79,9 @@ docker compose down
 
 Order Service talks to Product Service with Compose DNS: `http://product-service:8080/` (`Services:ProductService` in Order Service `appsettings.json`).
 
-User Service talks to MySQL with Compose DNS: `Server=mysql` (`ConnectionStrings__DefaultConnection`). Local `dotnet run` uses `Server=localhost` in `appsettings.json`.
+User and Product talk to MySQL with Compose DNS: `Server=mysql` (`ConnectionStrings__DefaultConnection`). Local `dotnet run` uses `Server=localhost` in each service `appsettings.json`.
 
-User rows survive `docker compose stop user-service`. They are stored in the `mysql-data` volume. Product and Order data is still in-memory.
+User and Product rows survive service restarts. They are stored in the `mysql-data` volume. Order data is still in-memory.
 
 ## Run a single service with `dotnet`
 
@@ -112,6 +114,6 @@ VPC, EC2, ECS, ALB, Auto Scaling, Route 53, CloudFront, API Gateway, Lambda, RDS
 
 - .NET 8 / ASP.NET Core Web API
 - React + TypeScript + Vite
-- EF Core + Pomelo MySQL (User Service); InMemory (Product, Order)
+- EF Core + Pomelo MySQL (User, Product); InMemory (Order)
 - Docker / Docker Compose
 - GitHub

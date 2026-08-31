@@ -31,4 +31,4 @@ docker compose down
 
 They share the Compose network `arunayandairy-network`. Order Service calls Product Service at `http://product-service:8080`. User Service calls MySQL at `mysql:3306`. Data lives in volume `mysql-data`.
 
-The frontend is not composed yet. Product and Order still use in-memory stores.
+The frontend is not composed yet. Order still uses an in-memory store.

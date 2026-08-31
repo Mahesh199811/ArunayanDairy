@@ -27,4 +27,4 @@ Compose build contexts are `./services/<Name>/<Name>.Api` (see root `docker-comp
 | ProductService | Catalog and stock | localhost:5001 | localhost:5296 |
 | OrderService | Orders; HTTP to Product | localhost:5002 | localhost:5275 |
 
-UserService uses MySQL (`arunayandairy_users`). ProductService and OrderService still use EF Core InMemory.
+UserService and ProductService use MySQL (`arunayandairy_users`, `arunayandairy_products`). OrderService still uses EF Core InMemory.

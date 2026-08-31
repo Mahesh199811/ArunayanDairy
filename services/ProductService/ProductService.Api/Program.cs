@@ -16,8 +16,15 @@ builder.Services.AddCors(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<ProductDbContext>(options =>
-    options.UseInMemoryDatabase("ProductDatabase"));
+var connectionString =
+    builder.Configuration.GetConnectionString(
+        "DefaultConnection");
+
+builder.Services.AddDbContext<ProductDbContext>(
+    options =>
+        options.UseMySql(
+            connectionString,
+            ServerVersion.AutoDetect(connectionString)));
 
 var app = builder.Build();
 
