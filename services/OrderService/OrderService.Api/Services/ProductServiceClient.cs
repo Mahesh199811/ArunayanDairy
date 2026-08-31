@@ -22,6 +22,15 @@ public class ProductServiceClient
 
         return await response.Content.ReadFromJsonAsync<ProductResponse>();
     }
+
+    public async Task<bool> ReduceStock(Guid productId, decimal quantity)
+    {
+        var response = await _httpClient.PostAsJsonAsync(
+            $"api/products/{productId}/reduce-stock",
+            new { quantity });
+
+        return response.IsSuccessStatusCode;
+    }
 }
 
 public class ProductResponse

@@ -100,6 +100,20 @@ public class OrdersController : ControllerBase
 
         await _context.SaveChangesAsync();
 
+        foreach (var orderItem in order.Items)
+        {
+            var reduced = await _productService.ReduceStock(
+                orderItem.ProductId,
+                orderItem.Quantity);
+
+            if (!reduced)
+            {
+                return StatusCode(
+                    StatusCodes.Status502BadGateway,
+                    $"Order was created but stock could not be updated for {orderItem.ProductName}.");
+            }
+        }
+
         return CreatedAtAction(
             nameof(GetOrder),
             new { id = order.Id },

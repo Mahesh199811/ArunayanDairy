@@ -7,5 +7,12 @@ export default defineConfig({
     hmr: {
       overlay: false,
     },
+    watch: {
+      ignored: ["**/.git/**", "**/node_modules/**"],
+    },
+  },
+  preview: {
+    port: 5173,
+    strictPort: true,
   },
 });

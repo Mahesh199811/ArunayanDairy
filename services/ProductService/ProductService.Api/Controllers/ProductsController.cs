@@ -76,4 +76,35 @@ public class ProductsController : ControllerBase
             new { id = product.Id },
             product);
     }
+
+    [HttpPost("{id:guid}/reduce-stock")]
+    public async Task<IActionResult> ReduceStock(
+        Guid id,
+        ReduceStockRequest request)
+    {
+        if (request.Quantity <= 0)
+        {
+            return BadRequest("Quantity must be greater than zero.");
+        }
+
+        var product = await _context.Products
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        if (product == null)
+        {
+            return NotFound();
+        }
+
+        if (request.Quantity > product.AvailableQuantity)
+        {
+            return BadRequest(
+                $"Insufficient quantity for {product.Name}.");
+        }
+
+        product.AvailableQuantity -= request.Quantity;
+
+        await _context.SaveChangesAsync();
+
+        return Ok(product);
+    }
 }
