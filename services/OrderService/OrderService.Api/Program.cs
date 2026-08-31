@@ -23,16 +23,25 @@ builder.Services.AddCors(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<OrderDbContext>(options =>
-    options.UseInMemoryDatabase("OrderDatabase"));
+var connectionString =
+    builder.Configuration.GetConnectionString(
+        "DefaultConnection");
+
+builder.Services.AddDbContext<OrderDbContext>(
+    options =>
+        options.UseMySql(
+            connectionString,
+            ServerVersion.AutoDetect(connectionString)));
 
 var productServiceUrl =
     builder.Configuration["Services:ProductService"];
 
-builder.Services.AddHttpClient<ProductServiceClient>(client =>
-{
-    client.BaseAddress = new Uri(productServiceUrl!);
-});
+builder.Services.AddHttpClient<ProductServiceClient>(
+    client =>
+    {
+        client.BaseAddress =
+            new Uri(productServiceUrl!);
+    });
 
 var app = builder.Build();
 
